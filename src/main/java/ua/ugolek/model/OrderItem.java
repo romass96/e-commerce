@@ -1,6 +1,7 @@
 package ua.ugolek.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Getter
-@Data
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "order_items")
@@ -38,6 +39,9 @@ public class OrderItem {
 
     @Transient
     public BigDecimal getTotalPrice() {
+        if (purchasePrice == null) {
+            calculatePurchasePrice();
+        }
         return purchasePrice.multiply(new BigDecimal(quantity));
     }
 

@@ -110,9 +110,13 @@ public class Helper  implements CommandLineRunner {
     }
 
     public void createProducts() {
+        String[] names = {"Кальян", "Стиральная машина", "Телевизор", "Чайник", "Табак"};
         for (int i = 1; i <= PRODUCTS_COUNT; i++) {
             Product product = new Product();
-            product.setName(generateString(15));
+
+            int nameIndex = ThreadLocalRandom.current().nextInt(0, names.length);
+            product.setName(names[nameIndex] + " " + generateString(3));
+
             product.setDescription(generateString(250));
             product.setCategory(categoryMap.get(ThreadLocalRandom.current().nextLong(1, CATEGORIES_COUNT + 1)));
             product.setPrice(BigDecimal.valueOf(getRandomDouble(1.0, 35598.50)));
@@ -221,8 +225,8 @@ public class Helper  implements CommandLineRunner {
             order.setComment(generateString(200));
 
 
-//            LocalDateTime startDate = LocalDateTime.of(2020, 1, 1, 0, 0);
-//            order.setCreatedDate(generateDate(startDate));
+            LocalDateTime startDate = LocalDateTime.of(2020, 1, 1, 0, 0);
+            order.setCreatedDate(generateDate(startDate));
             orderService.create(order);
         }
     }

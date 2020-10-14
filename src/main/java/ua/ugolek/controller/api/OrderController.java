@@ -33,4 +33,9 @@ public class OrderController {
     public Map<LocalDate, Long> getOrderStatistics(@RequestParam String period) {
         return orderService.countOrdersByCreatedDate(period);
     }
+
+    @GetMapping("/orderDetails")
+    public Order getOrderDetails(@RequestParam Long id) {
+        return orderService.getById(id);
+    }
 }

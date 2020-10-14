@@ -5,11 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.ugolek.exception.ObjectNotFoundException;
+import ua.ugolek.model.Category;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.payload.OrderFilter;
 import ua.ugolek.payload.OrderListResponse;
 import ua.ugolek.projection.OrdersCountProjection;
+import ua.ugolek.repository.ExtendedOrderRepository;
 import ua.ugolek.repository.OrderRepository;
 import ua.ugolek.util.Comparators;
 import ua.ugolek.util.DateUtils;
@@ -28,6 +31,9 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ExtendedOrderRepository extendedOrderRepository;
+
     public Order create(Order order) {
         order.setStatus(OrderStatus.PENDING);
         return orderRepository.save(order);
@@ -35,6 +41,11 @@ public class OrderService {
 
     public List<Order> getAll() {
         return orderRepository.findAll();
+    }
+
+    public Order getById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException(Order.class.getSimpleName(), id));
     }
 
     public void cancelOrder(Long orderId) {
@@ -53,23 +64,12 @@ public class OrderService {
     }
 
     public OrderListResponse queryByFilter(OrderFilter filter) {
-        Pageable pageable = PageRequest.of(filter.getPageNumber(), filter.getPerPage());
-        Page<Order> orderPage;
-        Long categoryId = filter.getCategoryId();
-        if (categoryId == null) {
-            orderPage = orderRepository.filter(pageable, filter.getStatus());
-        } else {
-            orderPage = orderRepository.filter(pageable, categoryId, filter.getStatus());
-        }
-//        String sortBy = filter.getSortBy();
-//        if (sortBy != null) {
-//            orderPage.getContent().sort(Comparators.getOrderComparatorByCode(sortBy, filter.isSortDesc()));
-//        }
+        Pageable pageable = PageRequest.of(filter.getPageNumber() - 1, filter.getPerPage());
+        Page<Order> orderPage = extendedOrderRepository.filter(filter, pageable);
 
         OrderListResponse response = new OrderListResponse();
         response.setOrders(orderPage.getContent());
         response.setTotalItems(orderPage.getTotalElements());
-        response.setTotalPages(orderPage.getTotalPages());
         return response;
     }
 
