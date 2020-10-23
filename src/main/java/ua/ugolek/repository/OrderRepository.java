@@ -13,8 +13,6 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findByStatus(OrderStatus status);
-
     @Query(value = "SELECT DATE(o.created_date) as createdDate, COUNT(o) as ordersCount FROM orders o " +
             "WHERE o.created_date >= :startDate " +
             "GROUP BY createdDate " +

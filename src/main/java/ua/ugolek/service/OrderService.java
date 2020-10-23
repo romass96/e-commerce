@@ -6,17 +6,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.ugolek.exception.ObjectNotFoundException;
-import ua.ugolek.model.Category;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.payload.OrderFilter;
 import ua.ugolek.payload.OrderListResponse;
 import ua.ugolek.projection.OrdersCountProjection;
-import ua.ugolek.repository.ExtendedOrderRepository;
+import ua.ugolek.repository.AdvancedOrderRepository;
 import ua.ugolek.repository.OrderRepository;
-import ua.ugolek.util.Comparators;
 import ua.ugolek.util.DateUtils;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -26,16 +25,21 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
-    private ExtendedOrderRepository extendedOrderRepository;
+    private AdvancedOrderRepository advancedOrderRepository;
 
     public Order create(Order order) {
         order.setStatus(OrderStatus.PENDING);
+        return orderRepository.save(order);
+    }
+
+    public Order update(Order order) {
         return orderRepository.save(order);
     }
 
@@ -55,17 +59,9 @@ public class OrderService {
         });
     }
 
-    public List<Order> findCancelledOrders() {
-        return orderRepository.findByStatus(OrderStatus.CANCELLED);
-    }
-
-    public List<Order> findCompletedOrders() {
-        return orderRepository.findByStatus(OrderStatus.COMPLETED);
-    }
-
     public OrderListResponse queryByFilter(OrderFilter filter) {
         Pageable pageable = PageRequest.of(filter.getPageNumber() - 1, filter.getPerPage());
-        Page<Order> orderPage = extendedOrderRepository.filter(filter, pageable);
+        Page<Order> orderPage = advancedOrderRepository.filter(filter, pageable);
 
         OrderListResponse response = new OrderListResponse();
         response.setOrders(orderPage.getContent());

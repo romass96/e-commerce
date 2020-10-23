@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Repository
-public class ExtendedOrderRepository {
+public class AdvancedOrderRepository {
 
     // Names of entity's fields. Should be the same as names of Java class fields
     private static final String TOTAL_ORDER_PRICE_FIELD = "totalOrderPrice";
@@ -77,16 +77,18 @@ public class ExtendedOrderRepository {
         List<Predicate> stringForSearchPredicates = new ArrayList<>();
 
         Optional<String> stringForSearchOptional = orderFilter.getStringForSearchOptional();
-
-        orderFilter.getCategoryIdOptional().ifPresent(categoryId -> {
+        Optional<Long> categoryIdOptional = orderFilter.getCategoryIdOptional();
+        if (stringForSearchOptional.isPresent() || categoryIdOptional.isPresent()) {
             Join<Order, OrderItem> orderItems = root.join(ORDER_ITEMS_FIELD);
             Join<OrderItem, Product> products = orderItems.join(PRODUCT_FIELD);
-            wherePredicates.add(criteriaBuilder.equal(products.get(ID_FIELD), categoryId));
+
+            categoryIdOptional.ifPresent(categoryId ->
+                    wherePredicates.add(criteriaBuilder.equal(products.get(ID_FIELD), categoryId)));
 
             stringForSearchOptional.ifPresent(stringForSearch ->
-                stringForSearchPredicates.add(
-                    criteriaBuilder.like(products.get(PRODUCT_NAME_FIELD), like(stringForSearch))));
-        });
+                    stringForSearchPredicates.add(
+                            criteriaBuilder.like(products.get(PRODUCT_NAME_FIELD), like(stringForSearch))));
+        }
 
         orderFilter.getStatusOptional().ifPresent(status ->
                 wherePredicates.add(criteriaBuilder.equal(root.get(STATUS_FIELD), status)));
@@ -110,10 +112,12 @@ public class ExtendedOrderRepository {
                 wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get(CREATED_DATE_FIELD), toDate)));
 
-        Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
-        wherePredicates.add(stringForSearchPredicate);
-        Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
+        if (!stringForSearchPredicates.isEmpty()) {
+            Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
+            wherePredicates.add(stringForSearchPredicate);
+        }
 
+        Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
         query.where(wherePredicatesArray);
     }
 

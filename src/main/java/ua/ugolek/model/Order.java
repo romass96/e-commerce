@@ -25,7 +25,7 @@ public class Order {
     private Long id;
 
     @Column(name = "created_date", nullable = false, updatable = false)
-    @CreatedDate
+//    @CreatedDate
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdDate;
 
@@ -43,6 +43,8 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;
+
+    private String phoneNumber;
 
     private String comment;
 
