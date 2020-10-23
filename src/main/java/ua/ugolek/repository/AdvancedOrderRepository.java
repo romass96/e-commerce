@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static ua.ugolek.util.RepositoryUtils.like;
+import static ua.ugolek.util.RepositoryUtils.setPaginationParameters;
+
 @Repository
 public class AdvancedOrderRepository {
 
@@ -119,14 +122,5 @@ public class AdvancedOrderRepository {
 
         Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
         query.where(wherePredicatesArray);
-    }
-
-    private void setPaginationParameters(TypedQuery<Order> query, int pageNumber, int perPage) {
-        query.setFirstResult((pageNumber - 1) * perPage);
-        query.setMaxResults(perPage);
-    }
-
-    private String like(String input) {
-        return "%" + input + "%";
     }
 }

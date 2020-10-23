@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ua.ugolek.model.Feedback;
 import ua.ugolek.payload.FeedbackFilter;
 import ua.ugolek.payload.FeedbackListResponse;
+import ua.ugolek.repository.AdvancedFeedbackRepository;
 import ua.ugolek.repository.FeedbackRepository;
 
 import java.util.HashMap;
@@ -21,6 +22,9 @@ public class FeedbackService {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    @Autowired
+    private AdvancedFeedbackRepository advancedFeedbackRepository;
+
     public List<Feedback> getAll() {
         return feedbackRepository.findAll();
     }
@@ -30,24 +34,8 @@ public class FeedbackService {
     }
 
     public FeedbackListResponse queryByFilter(FeedbackFilter filter) {
-        Pageable pageable = PageRequest.of(filter.getPageNumber(), filter.getPerPage());
-        Page<Feedback> feedbackPage;
-        if (filter.getCategoryId() != null) {
-            feedbackPage = feedbackRepository.filter(pageable,
-                    filter.getFromDate(),
-                    filter.getToDate(),
-                    filter.getCategoryId(),
-                    filter.getFromRating(),
-                    filter.getToRating(),
-                    filter.getSubSequence());
-        } else {
-            feedbackPage = feedbackRepository.filter(pageable,
-                    filter.getFromDate(),
-                    filter.getToDate(),
-                    filter.getFromRating(),
-                    filter.getToRating(),
-                    filter.getSubSequence());
-        }
+        Pageable pageable = PageRequest.of(filter.getPageNumber() - 1, filter.getPerPage());
+        Page<Feedback> feedbackPage = advancedFeedbackRepository.filter(filter, pageable);
 
         FeedbackListResponse response = new FeedbackListResponse();
         response.setFeedbacks(feedbackPage.getContent());

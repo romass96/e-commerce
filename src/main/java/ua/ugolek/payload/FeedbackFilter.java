@@ -3,9 +3,9 @@ package ua.ugolek.payload;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
-import ua.ugolek.util.DateUtils;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Setter
 @Getter
@@ -21,13 +21,27 @@ public class FeedbackFilter {
     private Long categoryId;
     private double fromRating;
     private double toRating;
-    private String subSequence;
+    private String stringForSearch;
+    private String sortBy;
+    private boolean sortDesc;
 
-    public LocalDateTime getToDate() {
-        return toDate == null ? LocalDateTime.now() : toDate;
+    public Optional<String> getStringForSearchOptional() {
+        return Optional.ofNullable(stringForSearch);
     }
 
-    public LocalDateTime getFromDate() {
-        return fromDate == null ? DateUtils.getInitialDate() : fromDate;
+    public Optional<Long> getCategoryIdOptional() {
+        return Optional.ofNullable(categoryId);
+    }
+
+    public Optional<LocalDateTime> getFromDateOptional() {
+        return Optional.ofNullable(fromDate);
+    }
+
+    public Optional<LocalDateTime> getToDateOptional() {
+        return Optional.ofNullable(toDate);
+    }
+
+    public Optional<String> getSortByOptional() {
+        return Optional.ofNullable(sortBy);
     }
 }
