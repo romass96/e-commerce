@@ -53,10 +53,9 @@ public class OrderService {
     }
 
     public void cancelOrder(Long orderId) {
-        orderRepository.findById(orderId).ifPresent(order -> {
-            order.setStatus(OrderStatus.CANCELLED);
-            orderRepository.save(order);
-        });
+        Order order = getById(orderId);
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
     }
 
     public OrderListResponse queryByFilter(OrderFilter filter) {
