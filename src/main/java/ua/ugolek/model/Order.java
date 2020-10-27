@@ -1,16 +1,10 @@
 package ua.ugolek.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,26 +12,11 @@ import java.util.List;
 @Table(name = "orders")
 @Data
 @NoArgsConstructor
-@EntityListeners({AuditingEntityListener.class})
-public class Order {
+public class Order extends Auditable<User> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "created_date", nullable = false, updatable = false)
-//    @CreatedDate
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime createdDate;
-
-    @Column(name = "modified_date")
-    @LastModifiedDate
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime modifiedDate;
-
-    @Column(name = "last_modified_by")
-    @LastModifiedBy
-    private String lastModifiedBy;
 
     @Enumerated(value = EnumType.STRING)
     private OrderStatus status;

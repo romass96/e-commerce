@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import ua.ugolek.model.Role;
 import ua.ugolek.model.User;
 import ua.ugolek.security.JwtUtils;
-import ua.ugolek.security.UserDetailsImpl;
 import ua.ugolek.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,8 +43,8 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
+        User user = (User) authentication.getPrincipal();
+        List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
@@ -56,7 +55,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateToken(authentication);
 
-        return ResponseEntity.ok(new JwtResponse(userDetails, jwt, roles));
+        return ResponseEntity.ok(new JwtResponse(user, jwt, roles));
     }
 
     @PostMapping("/signin")
@@ -67,25 +66,25 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
+        User user = (User) authentication.getPrincipal();
+        List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(userDetails, jwt, roles));
+        return ResponseEntity.ok(new JwtResponse(user, jwt, roles));
     }
 
     @GetMapping("/fetchUserInfo")
     public ResponseEntity<?> fetchUserInfo(HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl)authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateToken(authentication);
 
-        List<String> roles = userDetails.getAuthorities().stream()
+        List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(userDetails, jwt, roles));
+        return ResponseEntity.ok(new JwtResponse(user, jwt, roles));
     }
 
     @Getter
@@ -110,13 +109,13 @@ public class AuthController {
         private String lastName;
         private List<String> roles;
 
-        public JwtResponse(UserDetailsImpl userDetails, String token, List<String> roles) {
+        public JwtResponse(User user, String token, List<String> roles) {
             this.token = token;
             this.roles = roles;
-            this.email = userDetails.getEmail();
-            this.firstName = userDetails.getFirstName();
-            this.lastName = userDetails.getLastName();
-            this.id = userDetails.getId();
+            this.email = user.getEmail();
+            this.firstName = user.getFirstName();
+            this.lastName = user.getLastName();
+            this.id = user.getId();
         }
     }
 
