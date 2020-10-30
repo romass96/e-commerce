@@ -1,15 +1,11 @@
 package ua.ugolek.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
-import ua.ugolek.payload.OrderFilter;
-import ua.ugolek.payload.OrderListResponse;
+import ua.ugolek.payload.filters.OrderFilter;
 import ua.ugolek.projection.OrdersCountProjection;
 import ua.ugolek.repository.AdvancedOrderRepository;
 import ua.ugolek.repository.OrderRepository;
@@ -26,13 +22,15 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class OrderService {
+public class OrderService extends FilterSupportService<Order, OrderFilter> {
 
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
-    private AdvancedOrderRepository advancedOrderRepository;
+    public OrderService(AdvancedOrderRepository filterSupportRepository) {
+        super(filterSupportRepository);
+    }
 
     public Order create(Order order) {
         order.setStatus(OrderStatus.PENDING);
@@ -58,16 +56,6 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public OrderListResponse queryByFilter(OrderFilter filter) {
-        Pageable pageable = PageRequest.of(filter.getPageNumber() - 1, filter.getPerPage());
-        Page<Order> orderPage = advancedOrderRepository.filter(filter, pageable);
-
-        OrderListResponse response = new OrderListResponse();
-        response.setOrders(orderPage.getContent());
-        response.setTotalItems(orderPage.getTotalElements());
-        return response;
-    }
-
     public Map<LocalDate, Long> countOrdersByCreatedDate(String periodCode) {
         Period period = DateUtils.getPeriodByCode(periodCode);
         LocalDateTime endDate = LocalDateTime.now();
@@ -79,7 +67,6 @@ public class OrderService {
         startDate.toLocalDate().datesUntil(endDate.toLocalDate()).forEach(date -> map.putIfAbsent(date, 0L));
 
         return map;
-
     }
 
 }

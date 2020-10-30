@@ -1,29 +1,22 @@
 package ua.ugolek.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderItem;
 import ua.ugolek.model.Product;
-import ua.ugolek.payload.OrderFilter;
+import ua.ugolek.payload.filters.OrderFilter;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
-import static ua.ugolek.util.RepositoryUtils.like;
-import static ua.ugolek.util.RepositoryUtils.setPaginationParameters;
 
 @Repository
-public class AdvancedOrderRepository {
+public class AdvancedOrderRepository extends FilterSupportRepository<Order, OrderFilter> {
 
     // Names of entity's fields. Should be the same as names of Java class fields
     private static final String TOTAL_ORDER_PRICE_FIELD = "totalOrderPrice";
@@ -35,47 +28,12 @@ public class AdvancedOrderRepository {
     private static final String ORDER_ITEMS_FIELD = "orderItems";
     private static final String PRODUCT_FIELD = "product";
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private CriteriaBuilder criteriaBuilder;
-
-    @PostConstruct
-    public void setupCriteriaBuilder() {
-        this.criteriaBuilder = entityManager.getCriteriaBuilder();
+    public AdvancedOrderRepository() {
+        super(Order.class);
     }
 
-    public Page<Order> filter(OrderFilter orderFilter, Pageable pageable) {
-        CriteriaQuery<Long> countQuery = getCountQuery(orderFilter);
-        long count = entityManager.createQuery(countQuery).getSingleResult();
-
-        CriteriaQuery<Order> query = getSelectQuery(orderFilter);
-        TypedQuery<Order> typedQuery = entityManager.createQuery(query);
-        setPaginationParameters(typedQuery, orderFilter.getPageNumber(), orderFilter.getPerPage());
-
-        return new PageImpl<>(typedQuery.getResultList(), pageable, count);
-    }
-
-    private CriteriaQuery<Order> getSelectQuery(OrderFilter orderFilter) {
-        CriteriaQuery<Order> query = criteriaBuilder.createQuery(Order.class);
-        Root<Order> root = query.from(Order.class);
-        populateQuery(orderFilter, query, root);
-        orderFilter.getSortByOptional().ifPresent(sortBy -> {
-            Function<Path<Order>, javax.persistence.criteria.Order> sortFunction = orderFilter.isSortDesc() ?
-                    criteriaBuilder::desc : criteriaBuilder::asc;
-            query.orderBy(sortFunction.apply(root.get(sortBy)));
-        });
-        return query.select(root);
-    }
-
-    private CriteriaQuery<Long> getCountQuery(OrderFilter orderFilter) {
-        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
-        Root<Order> root = query.from(Order.class);
-        populateQuery(orderFilter, query, root);
-        return query.select(criteriaBuilder.count(root));
-    }
-
-    private <T> void populateQuery(OrderFilter orderFilter, CriteriaQuery<T> query, Root<Order> root) {
+    @Override
+    protected  <T> void populateQuery(OrderFilter orderFilter, CriteriaQuery<T> query, Root<Order> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
         List<Predicate> stringForSearchPredicates = new ArrayList<>();
 

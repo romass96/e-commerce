@@ -2,11 +2,10 @@ package ua.ugolek.controller.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ua.ugolek.model.Client;
+import ua.ugolek.payload.ListResponse;
+import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.service.ClientService;
 
 import java.time.LocalDate;
@@ -29,6 +28,11 @@ public class ClientController {
     @GetMapping("/registrationStatistics")
     public Map<LocalDate, Long> getRegistrationStatistics(@RequestParam String period) {
         return clientService.countClientsByRegistrationDate(period);
+    }
+
+    @PostMapping("/filter")
+    public ListResponse<Client> getClientsByFilter(@RequestBody SearchFilter filter) {
+        return clientService.queryByFilter(filter);
     }
 
 }

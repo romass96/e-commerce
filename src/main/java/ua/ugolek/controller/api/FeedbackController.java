@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ua.ugolek.model.Feedback;
-import ua.ugolek.payload.FeedbackFilter;
-import ua.ugolek.payload.FeedbackListResponse;
+import ua.ugolek.payload.ListResponse;
+import ua.ugolek.payload.filters.FeedbackFilter;
 import ua.ugolek.service.FeedbackService;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class FeedbackController {
     }
 
     @PostMapping("/filter")
-    public FeedbackListResponse getFeedbacksByFilter(@RequestBody FeedbackFilter filter) {
+    public ListResponse<Feedback> getFeedbacksByFilter(@RequestBody FeedbackFilter filter) {
         return feedbackService.queryByFilter(filter);
     }
 

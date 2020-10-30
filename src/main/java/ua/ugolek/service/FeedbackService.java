@@ -1,13 +1,9 @@
 package ua.ugolek.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Feedback;
-import ua.ugolek.payload.FeedbackFilter;
-import ua.ugolek.payload.FeedbackListResponse;
+import ua.ugolek.payload.filters.FeedbackFilter;
 import ua.ugolek.repository.AdvancedFeedbackRepository;
 import ua.ugolek.repository.FeedbackRepository;
 
@@ -18,12 +14,14 @@ import java.util.Map;
 import static ua.ugolek.Constants.*;
 
 @Service
-public class FeedbackService {
+public class FeedbackService extends FilterSupportService<Feedback, FeedbackFilter> {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
     @Autowired
-    private AdvancedFeedbackRepository advancedFeedbackRepository;
+    public FeedbackService(AdvancedFeedbackRepository filterSupportRepository) {
+        super(filterSupportRepository);
+    }
 
     public List<Feedback> getAll() {
         return feedbackRepository.findAll();
@@ -31,17 +29,6 @@ public class FeedbackService {
 
     public Feedback create(Feedback feedback) {
         return feedbackRepository.save(feedback);
-    }
-
-    public FeedbackListResponse queryByFilter(FeedbackFilter filter) {
-        Pageable pageable = PageRequest.of(filter.getPageNumber() - 1, filter.getPerPage());
-        Page<Feedback> feedbackPage = advancedFeedbackRepository.filter(filter, pageable);
-
-        FeedbackListResponse response = new FeedbackListResponse();
-        response.setFeedbacks(feedbackPage.getContent());
-        response.setTotalItems(feedbackPage.getTotalElements());
-        response.setTotalPages(feedbackPage.getTotalPages());
-        return response;
     }
 
     public Map<String, Long> getFeedbacksCount() {

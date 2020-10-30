@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import ua.ugolek.model.Order;
-import ua.ugolek.payload.OrderFilter;
-import ua.ugolek.payload.OrderListResponse;
+import ua.ugolek.payload.ListResponse;
+import ua.ugolek.payload.filters.OrderFilter;
 import ua.ugolek.service.OrderService;
 
 import java.time.LocalDate;
@@ -29,7 +27,7 @@ public class OrderController {
     }
 
     @PostMapping("/filter")
-    public OrderListResponse getOrdersByFilter(@RequestBody OrderFilter filter) {
+    public ListResponse<Order> getOrdersByFilter(@RequestBody OrderFilter filter) {
         return orderService.queryByFilter(filter);
     }
 

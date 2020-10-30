@@ -1,31 +1,22 @@
 package ua.ugolek.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import ua.ugolek.model.Category;
 import ua.ugolek.model.Feedback;
 import ua.ugolek.model.Product;
-import ua.ugolek.payload.FeedbackFilter;
+import ua.ugolek.payload.filters.FeedbackFilter;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static ua.ugolek.util.RepositoryUtils.like;
-import static ua.ugolek.util.RepositoryUtils.setPaginationParameters;
-
 @Repository
-public class AdvancedFeedbackRepository {
-
+public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback, FeedbackFilter> {
     private static final String ADVANTAGES_FIELD = "advantages";
     private static final String DISADVANTAGES_FIELD = "disadvantages";
     private static final String TEXT_FIELD = "text";
@@ -36,47 +27,12 @@ public class AdvancedFeedbackRepository {
     private static final String CATEGORY_FIELD = "category";
     private static final String RATING_FIELD = "rating";
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private CriteriaBuilder criteriaBuilder;
-
-    @PostConstruct
-    public void setupCriteriaBuilder() {
-        this.criteriaBuilder = entityManager.getCriteriaBuilder();
+    protected AdvancedFeedbackRepository() {
+        super(Feedback.class);
     }
 
-    public Page<Feedback> filter(FeedbackFilter filter, Pageable pageable) {
-        CriteriaQuery<Long> countQuery = getCountQuery(filter);
-        long count = entityManager.createQuery(countQuery).getSingleResult();
-
-        CriteriaQuery<Feedback> query = getSelectQuery(filter);
-        TypedQuery<Feedback> typedQuery = entityManager.createQuery(query);
-        setPaginationParameters(typedQuery, filter.getPageNumber(), filter.getPerPage());
-
-        return new PageImpl<>(typedQuery.getResultList(), pageable, count);
-    }
-
-    private CriteriaQuery<Feedback> getSelectQuery(FeedbackFilter feedbackFilter) {
-        CriteriaQuery<Feedback> query = criteriaBuilder.createQuery(Feedback.class);
-        Root<Feedback> root = query.from(Feedback.class);
-        populateQuery(feedbackFilter, query, root);
-        feedbackFilter.getSortByOptional().ifPresent(sortBy -> {
-            Function<Path<Feedback>, Order> sortFunction = feedbackFilter.isSortDesc() ?
-                    criteriaBuilder::desc : criteriaBuilder::asc;
-            query.orderBy(sortFunction.apply(root.get(sortBy)));
-        });
-        return query.select(root);
-    }
-
-    private CriteriaQuery<Long> getCountQuery(FeedbackFilter feedbackFilter) {
-        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
-        Root<Feedback> root = query.from(Feedback.class);
-        populateQuery(feedbackFilter, query, root);
-        return query.select(criteriaBuilder.count(root));
-    }
-
-    private <T> void populateQuery(FeedbackFilter feedbackFilter, CriteriaQuery<T> query, Root<Feedback> root) {
+    @Override
+    protected  <T> void populateQuery(FeedbackFilter feedbackFilter, CriteriaQuery<T> query, Root<Feedback> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
         List<Predicate> stringForSearchPredicates = new ArrayList<>();
 

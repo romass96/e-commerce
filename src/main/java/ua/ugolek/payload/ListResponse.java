@@ -2,15 +2,14 @@ package ua.ugolek.payload;
 
 import lombok.Getter;
 import lombok.Setter;
-import ua.ugolek.model.Feedback;
 
 import java.util.List;
 
 @Getter
 @Setter
-public class FeedbackListResponse {
+public class ListResponse<T> {
     private long totalItems;
-    private List<Feedback> feedbacks;
+    private List<T> items;
     private int totalPages;
     private int currentPage;
 }
