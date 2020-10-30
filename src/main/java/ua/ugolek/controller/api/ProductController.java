@@ -1,14 +1,13 @@
 package ua.ugolek.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ua.ugolek.model.Product;
-import ua.ugolek.model.Property;
+import ua.ugolek.payload.ListResponse;
+import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.service.ProductService;
 import ua.ugolek.service.PropertyService;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -44,5 +43,10 @@ public class ProductController {
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id) {
         return productService.getById(id);
+    }
+
+    @PostMapping("/filter")
+    public ListResponse<Product> getProductsByFilter(@RequestBody SearchFilter filter) {
+        return productService.queryByFilter(filter);
     }
 }

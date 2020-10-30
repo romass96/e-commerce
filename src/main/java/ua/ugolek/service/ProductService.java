@@ -3,17 +3,17 @@ package ua.ugolek.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.ugolek.exception.ObjectNotFoundException;
-import ua.ugolek.model.Category;
 import ua.ugolek.model.Product;
 import ua.ugolek.model.PropertyDefinition;
+import ua.ugolek.payload.filters.SearchFilter;
+import ua.ugolek.repository.AdvancedProductRepository;
 import ua.ugolek.repository.ProductRepository;
 import ua.ugolek.repository.PropertyDefinitionRepository;
-import ua.ugolek.repository.PropertyRepository;
 
 import java.util.List;
 
 @Service
-public class ProductService {
+public class ProductService extends FilterSupportService<Product, SearchFilter> {
 
     @Autowired
     private ProductRepository productRepository;
@@ -21,6 +21,10 @@ public class ProductService {
     @Autowired
     private PropertyDefinitionRepository definitionRepository;
 
+    @Autowired
+    public ProductService(AdvancedProductRepository filterSupportRepository) {
+        super(filterSupportRepository);
+    }
 
     public Product add(Product product) {
         product.getProperties().forEach(property -> {
