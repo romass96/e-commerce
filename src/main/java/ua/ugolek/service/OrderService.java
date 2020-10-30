@@ -1,8 +1,8 @@
 package ua.ugolek.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.payload.filters.OrderFilter;
@@ -32,22 +32,10 @@ public class OrderService extends FilterSupportService<Order, OrderFilter> {
         super(filterSupportRepository);
     }
 
+    @Override
     public Order create(Order order) {
         order.setStatus(OrderStatus.PENDING);
         return orderRepository.save(order);
-    }
-
-    public Order update(Order order) {
-        return orderRepository.save(order);
-    }
-
-    public List<Order> getAll() {
-        return orderRepository.findAll();
-    }
-
-    public Order getById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException(Order.class.getSimpleName(), id));
     }
 
     public void cancelOrder(Long orderId) {
@@ -67,6 +55,11 @@ public class OrderService extends FilterSupportService<Order, OrderFilter> {
         startDate.toLocalDate().datesUntil(endDate.toLocalDate()).forEach(date -> map.putIfAbsent(date, 0L));
 
         return map;
+    }
+
+    @Override
+    protected JpaRepository<Order, Long> getRepository() {
+        return orderRepository;
     }
 
 }

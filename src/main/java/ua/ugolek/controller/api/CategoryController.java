@@ -24,7 +24,7 @@ public class CategoryController {
                 .map(Category::getId)
                 .map(id -> categoryService.getById(id))
                 .ifPresent(category::setParentCategory);
-        return categoryService.add(category);
+        return categoryService.create(category);
     }
 
     @PutMapping("/{id}")

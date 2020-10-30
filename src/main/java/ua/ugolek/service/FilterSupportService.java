@@ -7,7 +7,7 @@ import ua.ugolek.payload.ListResponse;
 import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.repository.FilterSupportRepository;
 
-public abstract class FilterSupportService<T, F extends SearchFilter> {
+public abstract class FilterSupportService<T, F extends SearchFilter> extends CrudService<T> {
     private final FilterSupportRepository<T, F> filterSupportRepository;
 
     public FilterSupportService(FilterSupportRepository<T, F> filterSupportRepository) {

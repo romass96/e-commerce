@@ -2,6 +2,7 @@ package ua.ugolek.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService extends CrudService<User> implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -42,10 +43,6 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-
-    public List<User> getAll() {
-        return userRepository.findAll();
     }
 
     public boolean existsByEmail(String email) {
@@ -92,5 +89,10 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
+    }
+
+    @Override
+    protected JpaRepository<User, Long> getRepository() {
+        return userRepository;
     }
 }

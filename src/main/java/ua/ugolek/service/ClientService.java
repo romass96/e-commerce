@@ -1,6 +1,7 @@
 package ua.ugolek.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Client;
@@ -32,14 +33,11 @@ public class ClientService extends FilterSupportService<Client, SearchFilter> {
         super(filterSupportRepository);
     }
 
+    @Override
     public Client create(Client client) {
         String encodedPassword = encoder.encode(client.getPassword());
         client.setPassword(encodedPassword);
         return clientRepository.save(client);
-    }
-
-    public List<Client> getAll() {
-        return clientRepository.findAll();
     }
 
     public Map<LocalDate, Long> countClientsByRegistrationDate(String periodCode) {
@@ -55,4 +53,8 @@ public class ClientService extends FilterSupportService<Client, SearchFilter> {
         return map;
     }
 
+    @Override
+    protected JpaRepository<Client, Long> getRepository() {
+        return clientRepository;
+    }
 }
