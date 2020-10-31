@@ -28,10 +28,6 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
     private static final String ORDER_ITEMS_FIELD = "orderItems";
     private static final String PRODUCT_FIELD = "product";
 
-    public AdvancedOrderRepository() {
-        super(Order.class);
-    }
-
     @Override
     protected  <T> void populateQuery(OrderFilter orderFilter, CriteriaQuery<T> query, Root<Order> root) {
         List<Predicate> wherePredicates = new ArrayList<>();

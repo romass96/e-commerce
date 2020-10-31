@@ -2,9 +2,9 @@ package ua.ugolek.service;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ua.ugolek.exception.ObjectNotFoundException;
+import ua.ugolek.util.ReflectionUtil;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 public abstract class CrudService<T> {
@@ -12,8 +12,7 @@ public abstract class CrudService<T> {
 
     @PostConstruct
     public void init() {
-        ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
-        this.objectType = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getSimpleName();
+        this.objectType = ReflectionUtil.getGenericClass(getClass()).getSimpleName();
     }
 
     public List<T> getAll() {

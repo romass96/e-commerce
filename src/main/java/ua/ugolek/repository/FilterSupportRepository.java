@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ua.ugolek.payload.filters.SearchFilter;
+import ua.ugolek.util.ReflectionUtil;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -20,8 +21,8 @@ public abstract class FilterSupportRepository<T,F extends SearchFilter> {
 
     protected CriteriaBuilder criteriaBuilder;
 
-    protected FilterSupportRepository(Class<T> entityClass) {
-        this.entityClass = entityClass;
+    protected FilterSupportRepository() {
+        this.entityClass = (Class<T>) ReflectionUtil.getGenericClass(getClass());
     }
 
     @PostConstruct

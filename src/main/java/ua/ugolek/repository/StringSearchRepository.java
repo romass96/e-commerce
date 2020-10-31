@@ -10,8 +10,7 @@ import java.util.stream.Stream;
 public abstract class StringSearchRepository<T> extends FilterSupportRepository<T, SearchFilter> {
     private final String[] fieldNamesForSearch;
 
-    protected StringSearchRepository(Class<T> entityClass, String[] fieldNamesForSearch) {
-        super(entityClass);
+    protected StringSearchRepository(String[] fieldNamesForSearch) {
         this.fieldNamesForSearch = fieldNamesForSearch;
     }
 

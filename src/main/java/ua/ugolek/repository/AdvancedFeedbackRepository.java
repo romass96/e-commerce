@@ -27,10 +27,6 @@ public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback
     private static final String CATEGORY_FIELD = "category";
     private static final String RATING_FIELD = "rating";
 
-    protected AdvancedFeedbackRepository() {
-        super(Feedback.class);
-    }
-
     @Override
     protected  <T> void populateQuery(FeedbackFilter feedbackFilter, CriteriaQuery<T> query, Root<Feedback> root) {
         List<Predicate> wherePredicates = new ArrayList<>();

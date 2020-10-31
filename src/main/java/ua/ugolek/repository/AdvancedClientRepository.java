@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 @Repository
 public class AdvancedClientRepository extends StringSearchRepository<Client> {
     public AdvancedClientRepository() {
-        super(Client.class, new String[] {"firstName", "lastName", "email", "phoneNumber"});
+        super(new String[] {"firstName", "lastName", "email", "phoneNumber"});
     }
 
 }

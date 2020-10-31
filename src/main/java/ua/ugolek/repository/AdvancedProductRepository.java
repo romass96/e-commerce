@@ -10,22 +10,14 @@ import javax.persistence.criteria.Root;
 import java.util.stream.Stream;
 
 @Repository
-public class AdvancedProductRepository extends FilterSupportRepository<Product, SearchFilter> {
+public class AdvancedProductRepository extends StringSearchRepository<Product> {
 
     private static final String NAME_FIELD = "name";
     private static final String DESCRIPTION_FIELD = "description";
 
-    protected AdvancedProductRepository() {
-        super(Product.class);
+    protected AdvancedProductRepository()
+    {
+        super(new String[] {NAME_FIELD, DESCRIPTION_FIELD});
     }
-
-    @Override
-    protected <P> void populateQuery(SearchFilter filter, CriteriaQuery<P> query, Root<Product> root) {
-        filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
-            Predicate[] predicates = Stream.of(NAME_FIELD, DESCRIPTION_FIELD)
-                    .map(field -> criteriaBuilder.like(root.get(field), like(stringForSearch)))
-                    .toArray(Predicate[]::new);
-            query.where(criteriaBuilder.or(predicates));
-        });
-    }
+    
 }
