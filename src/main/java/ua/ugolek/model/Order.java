@@ -35,6 +35,8 @@ public class Order extends Auditable<User> {
     @Column(name = "total_order_price", scale = 2)
     private BigDecimal totalOrderPrice;
 
+    private boolean paid;
+
 //    @OneToOne
 //    @JoinColumn(name = "delivery_details_id")
 //    private DeliveryDetails deliveryDetails;

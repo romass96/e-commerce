@@ -22,6 +22,7 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
     private static final String TOTAL_ORDER_PRICE_FIELD = "totalOrderPrice";
     private static final String COMMENT_FIELD = "comment";
     private static final String STATUS_FIELD = "status";
+    private static final String PAID_FIELD = "paid";
     private static final String CREATED_DATE_FIELD = "createdDate";
     private static final String ID_FIELD = "id";
     private static final String PRODUCT_NAME_FIELD = "name";
@@ -44,15 +45,24 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
 
             stringForSearchOptional.ifPresent(stringForSearch ->
                     stringForSearchPredicates.add(
-                            criteriaBuilder.like(products.get(PRODUCT_NAME_FIELD), like(stringForSearch))));
+                            createLikePredicate(products, PRODUCT_NAME_FIELD, stringForSearch)));
         }
 
-        orderFilter.getStatusOptional().ifPresent(status ->
-                wherePredicates.add(criteriaBuilder.equal(root.get(STATUS_FIELD), status)));
-
         stringForSearchOptional.ifPresent(stringForSearch ->
-            stringForSearchPredicates.add(criteriaBuilder.like(root.get(COMMENT_FIELD), like(stringForSearch))));
+            stringForSearchPredicates.add(createLikePredicate(root, COMMENT_FIELD, stringForSearch)));
 
+        addOrderPredicates(orderFilter, wherePredicates, root);
+
+        if (!stringForSearchPredicates.isEmpty()) {
+            Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
+            wherePredicates.add(stringForSearchPredicate);
+        }
+
+        Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
+        query.where(wherePredicatesArray);
+    }
+
+    private void addOrderPredicates(OrderFilter orderFilter, List<Predicate> wherePredicates, Root<Order> root) {
         orderFilter.getToPriceOptional().ifPresent(toPrice ->
                 wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get(TOTAL_ORDER_PRICE_FIELD), toPrice)));
@@ -69,12 +79,11 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
                 wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get(CREATED_DATE_FIELD), toDate)));
 
-        if (!stringForSearchPredicates.isEmpty()) {
-            Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
-            wherePredicates.add(stringForSearchPredicate);
-        }
+        orderFilter.getPaidOptional().ifPresent(paid ->
+                wherePredicates.add(criteriaBuilder.equal(root.get(PAID_FIELD), paid)));
 
-        Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
-        query.where(wherePredicatesArray);
+        orderFilter.getStatusOptional().ifPresent(status ->
+                wherePredicates.add(criteriaBuilder.equal(root.get(STATUS_FIELD), status)));
     }
+
 }

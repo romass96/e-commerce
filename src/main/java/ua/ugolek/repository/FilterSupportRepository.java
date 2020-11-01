@@ -65,10 +65,15 @@ public abstract class FilterSupportRepository<T,F extends SearchFilter> {
         query.setMaxResults(perPage);
     }
 
-    protected String like(String input) {
+    protected abstract <P> void populateQuery(F filter, CriteriaQuery<P> query, Root<T> root);
+
+    //TODO Case-insensitive search
+    protected String getLikePattern(String input) {
         return "%" + input + "%";
     }
 
-    protected abstract <P> void populateQuery(F filter, CriteriaQuery<P> query, Root<T> root);
+    protected Predicate createLikePredicate(Path<?> root, String fieldName, String likeString) {
+        return criteriaBuilder.like(root.get(fieldName), getLikePattern(likeString));
+    }
 
 }

@@ -41,12 +41,12 @@ public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback
             categoryIdOptional.ifPresent(categoryId ->
                     wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId)));
             stringForSearchOptional.ifPresent(stringForSearch ->
-                    stringForSearchPredicates.add(criteriaBuilder.like(product.get(NAME_FIELD), like(stringForSearch))));
+                    stringForSearchPredicates.add(createLikePredicate(product, NAME_FIELD, stringForSearch)));
         }
 
         stringForSearchOptional.ifPresent(stringForSearch ->
                 Stream.of(TEXT_FIELD, ADVANTAGES_FIELD, DISADVANTAGES_FIELD)
-                        .map(field -> criteriaBuilder.like(root.get(field), like(stringForSearch)))
+                        .map(field -> createLikePredicate(root, field, stringForSearch))
                         .forEach(stringForSearchPredicates::add));
 
         feedbackFilter.getFromDateOptional().ifPresent(fromDate ->

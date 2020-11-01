@@ -21,6 +21,7 @@ public class OrderFilter extends SearchFilter {
     private Long categoryId;
 
     private OrderStatus status;
+    private Boolean paid;
 
     private Double fromPrice;
     private Double toPrice;
@@ -47,6 +48,10 @@ public class OrderFilter extends SearchFilter {
 
     public Optional<LocalDateTime> getToDateOptional() {
         return Optional.ofNullable(toDate);
+    }
+
+    public Optional<Boolean> getPaidOptional() {
+        return Optional.ofNullable(paid);
     }
 
 }

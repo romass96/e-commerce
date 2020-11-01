@@ -18,7 +18,7 @@ public abstract class StringSearchRepository<T> extends FilterSupportRepository<
     protected <P> void populateQuery(SearchFilter filter, CriteriaQuery<P> query, Root<T> root) {
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
             Predicate[] predicates = Stream.of(fieldNamesForSearch)
-                    .map(field -> criteriaBuilder.like(root.get(field), like(stringForSearch)))
+                    .map(field -> createLikePredicate(root, field, stringForSearch))
                     .toArray(Predicate[]::new);
             query.where(criteriaBuilder.or(predicates));
         });
