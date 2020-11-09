@@ -4,12 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import ua.ugolek.exception.ObjectNotFoundException;
+import ua.ugolek.model.OrderStatus;
 import ua.ugolek.model.Product;
 import ua.ugolek.model.PropertyDefinition;
 import ua.ugolek.payload.filters.SearchFilter;
+import ua.ugolek.projection.ProductSoldProjection;
 import ua.ugolek.repository.AdvancedProductRepository;
 import ua.ugolek.repository.ProductRepository;
 import ua.ugolek.repository.PropertyDefinitionRepository;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductService extends FilterSupportService<Product, SearchFilter> {
@@ -39,6 +44,10 @@ public class ProductService extends FilterSupportService<Product, SearchFilter> 
             return productRepository.save(product);
         }
         throw new ObjectNotFoundException(Product.class.getSimpleName(), id);
+    }
+
+    public List<ProductSoldProjection> countSoldProducts() {
+        return productRepository.countProductsByOrderStatus(OrderStatus.COMPLETED);
     }
 
     @Override

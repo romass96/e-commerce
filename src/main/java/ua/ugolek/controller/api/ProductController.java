@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.ListResponse;
 import ua.ugolek.payload.filters.SearchFilter;
+import ua.ugolek.projection.ProductSoldProjection;
 import ua.ugolek.service.ProductService;
 import ua.ugolek.service.PropertyService;
 
@@ -48,5 +49,10 @@ public class ProductController {
     @PostMapping("/filter")
     public ListResponse<Product> getProductsByFilter(@RequestBody SearchFilter filter) {
         return productService.queryByFilter(filter);
+    }
+
+    @GetMapping("/productSoldStatistics")
+    public List<ProductSoldProjection> getSoldProductsStatistics() {
+        return productService.countSoldProducts();
     }
 }
