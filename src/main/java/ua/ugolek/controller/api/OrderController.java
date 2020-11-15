@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ua.ugolek.dto.OrderDTO;
 import ua.ugolek.model.Order;
 import ua.ugolek.payload.ListResponse;
 import ua.ugolek.payload.filters.OrderFilter;
 import ua.ugolek.service.OrderService;
+import ua.ugolek.service.dto.OrderDTOService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,14 +23,17 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private OrderDTOService orderDTOService;
+
     @GetMapping("")
     public List<Order> getAllOrders() {
         return orderService.getAll();
     }
 
     @PostMapping("/filter")
-    public ListResponse<Order> getOrdersByFilter(@RequestBody OrderFilter filter) {
-        return orderService.queryByFilter(filter);
+    public ListResponse<OrderDTO> getOrdersByFilter(@RequestBody OrderFilter filter) {
+        return orderDTOService.queryByFilter(filter);
     }
 
     @GetMapping("/orderStatistics")

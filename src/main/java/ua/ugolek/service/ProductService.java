@@ -7,28 +7,20 @@ import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.model.Product;
 import ua.ugolek.model.PropertyDefinition;
-import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.projection.ProductSoldProjection;
-import ua.ugolek.repository.AdvancedProductRepository;
 import ua.ugolek.repository.ProductRepository;
 import ua.ugolek.repository.PropertyDefinitionRepository;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
-public class ProductService extends FilterSupportService<Product, SearchFilter> {
+public class ProductService extends CrudService<Product> {
 
     @Autowired
     private ProductRepository productRepository;
 
     @Autowired
     private PropertyDefinitionRepository definitionRepository;
-
-    @Autowired
-    public ProductService(AdvancedProductRepository filterSupportRepository) {
-        super(filterSupportRepository);
-    }
 
     @Override
     public Product create(Product product) {

@@ -8,11 +8,12 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 public abstract class CrudService<T> {
+    private final static int ENTITY_CLASS_INDEX = 0;
     private String objectType;
 
     @PostConstruct
     public void init() {
-        this.objectType = ReflectionUtil.getGenericClass(getClass()).getSimpleName();
+        this.objectType = ReflectionUtil.getGenericClass(getClass(), ENTITY_CLASS_INDEX).getSimpleName();
     }
 
     public List<T> getAll() {

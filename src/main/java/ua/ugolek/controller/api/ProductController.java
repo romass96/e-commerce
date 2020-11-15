@@ -2,12 +2,14 @@ package ua.ugolek.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ua.ugolek.dto.ProductDTO;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.ListResponse;
 import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.projection.ProductSoldProjection;
 import ua.ugolek.service.ProductService;
 import ua.ugolek.service.PropertyService;
+import ua.ugolek.service.dto.ProductDTOService;
 
 import java.util.List;
 
@@ -17,6 +19,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductDTOService productDTOService;
 
     @Autowired
     private PropertyService propertyService;
@@ -47,8 +52,8 @@ public class ProductController {
     }
 
     @PostMapping("/filter")
-    public ListResponse<Product> getProductsByFilter(@RequestBody SearchFilter filter) {
-        return productService.queryByFilter(filter);
+    public ListResponse<ProductDTO> getProductsByFilter(@RequestBody SearchFilter filter) {
+        return productDTOService.queryByFilter(filter);
     }
 
     @GetMapping("/productSoldStatistics")

@@ -5,9 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
-import ua.ugolek.payload.filters.OrderFilter;
 import ua.ugolek.projection.OrdersCountProjection;
-import ua.ugolek.repository.AdvancedOrderRepository;
 import ua.ugolek.repository.OrderRepository;
 import ua.ugolek.util.DateUtils;
 
@@ -22,19 +20,19 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class OrderService extends FilterSupportService<Order, OrderFilter> {
+public class OrderService extends CrudService<Order> {
 
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    public OrderService(AdvancedOrderRepository filterSupportRepository) {
-        super(filterSupportRepository);
-    }
-
     @Override
     public Order create(Order order) {
         order.setStatus(OrderStatus.PENDING);
+        return orderRepository.save(order);
+    }
+
+    public Order createWithStatus(Order order, OrderStatus orderStatus) {
+        order.setStatus(orderStatus);
         return orderRepository.save(order);
     }
 

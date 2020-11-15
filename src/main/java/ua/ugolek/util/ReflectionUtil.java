@@ -4,8 +4,8 @@ import java.lang.reflect.ParameterizedType;
 
 public class ReflectionUtil
 {
-    public static Class<?> getGenericClass(Class<?> sourceClass) {
+    public static Class<?> getGenericClass(Class<?> sourceClass, int parameterizedClassIndex) {
         ParameterizedType parameterizedType = (ParameterizedType) sourceClass.getGenericSuperclass();
-        return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+        return (Class<?>) parameterizedType.getActualTypeArguments()[parameterizedClassIndex];
     }
 }

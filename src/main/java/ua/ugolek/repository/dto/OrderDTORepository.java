@@ -1,23 +1,25 @@
-package ua.ugolek.repository;
+package ua.ugolek.repository.dto;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ua.ugolek.dto.OrderDTO;
+import ua.ugolek.dto.mappers.OrderDTOMapper;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderItem;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.filters.OrderFilter;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
-public class AdvancedOrderRepository extends FilterSupportRepository<Order, OrderFilter> {
-
+public class OrderDTORepository extends FilterSupportDTORepository<Order, OrderFilter, OrderDTO> {
     // Names of entity's fields. Should be the same as names of Java class fields
     private static final String TOTAL_ORDER_PRICE_FIELD = "totalOrderPrice";
     private static final String COMMENT_FIELD = "comment";
@@ -29,8 +31,13 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
     private static final String ORDER_ITEMS_FIELD = "orderItems";
     private static final String PRODUCT_FIELD = "product";
 
+    @PostConstruct
+    public void initDTOMapper() {
+        this.dtoMapper = new OrderDTOMapper();
+    }
+
     @Override
-    protected  <T> void populateQuery(OrderFilter orderFilter, CriteriaQuery<T> query, Root<Order> root) {
+    protected <P> void populateQuery(OrderFilter orderFilter, CriteriaQuery<P> query, From<?, Order> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
         List<Predicate> stringForSearchPredicates = new ArrayList<>();
 
@@ -49,7 +56,7 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
         }
 
         stringForSearchOptional.ifPresent(stringForSearch ->
-            stringForSearchPredicates.add(createLikePredicate(root, COMMENT_FIELD, stringForSearch)));
+                stringForSearchPredicates.add(createLikePredicate(root, COMMENT_FIELD, stringForSearch)));
 
         addOrderPredicates(orderFilter, wherePredicates, root);
 
@@ -62,7 +69,7 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
         query.where(wherePredicatesArray);
     }
 
-    private void addOrderPredicates(OrderFilter orderFilter, List<Predicate> wherePredicates, Root<Order> root) {
+    private void addOrderPredicates(OrderFilter orderFilter, List<Predicate> wherePredicates, From<?, Order> root) {
         orderFilter.getToPriceOptional().ifPresent(toPrice ->
                 wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get(TOTAL_ORDER_PRICE_FIELD), toPrice)));
@@ -85,5 +92,4 @@ public class AdvancedOrderRepository extends FilterSupportRepository<Order, Orde
         orderFilter.getStatusOptional().ifPresent(status ->
                 wherePredicates.add(criteriaBuilder.equal(root.get(STATUS_FIELD), status)));
     }
-
 }

@@ -1,22 +1,25 @@
-package ua.ugolek.repository;
+package ua.ugolek.repository.dto;
 
 import org.springframework.stereotype.Repository;
+import ua.ugolek.dto.FeedbackDTO;
+import ua.ugolek.dto.mappers.FeedbackDTOMapper;
 import ua.ugolek.model.Category;
 import ua.ugolek.model.Feedback;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.filters.FeedbackFilter;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
-public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback, FeedbackFilter> {
+public class FeedbackDTORepository extends FilterSupportDTORepository<Feedback, FeedbackFilter, FeedbackDTO>{
     private static final String ADVANTAGES_FIELD = "advantages";
     private static final String DISADVANTAGES_FIELD = "disadvantages";
     private static final String TEXT_FIELD = "text";
@@ -27,13 +30,18 @@ public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback
     private static final String CATEGORY_FIELD = "category";
     private static final String RATING_FIELD = "rating";
 
+    @PostConstruct
+    public void initDTOMapper() {
+        this.dtoMapper = new FeedbackDTOMapper();
+    }
+
     @Override
-    protected  <T> void populateQuery(FeedbackFilter feedbackFilter, CriteriaQuery<T> query, Root<Feedback> root) {
+    protected <P> void populateQuery(FeedbackFilter filter, CriteriaQuery<P> query, From<?, Feedback> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
         List<Predicate> stringForSearchPredicates = new ArrayList<>();
 
-        Optional<String> stringForSearchOptional = feedbackFilter.getStringForSearchOptional();
-        Optional<Long> categoryIdOptional = feedbackFilter.getCategoryIdOptional();
+        Optional<String> stringForSearchOptional = filter.getStringForSearchOptional();
+        Optional<Long> categoryIdOptional = filter.getCategoryIdOptional();
         if (categoryIdOptional.isPresent() || stringForSearchOptional.isPresent()) {
             Join<Feedback, Product> product = root.join(PRODUCT_FIELD);
             Join<Product, Category> category = product.join(CATEGORY_FIELD);
@@ -49,16 +57,16 @@ public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback
                         .map(field -> createLikePredicate(root, field, stringForSearch))
                         .forEach(stringForSearchPredicates::add));
 
-        feedbackFilter.getFromDateOptional().ifPresent(fromDate ->
+        filter.getFromDateOptional().ifPresent(fromDate ->
                 wherePredicates.add(criteriaBuilder.greaterThanOrEqualTo(
                         root.get(CREATED_DATE_FIELD), fromDate)));
 
-        feedbackFilter.getToDateOptional().ifPresent(toDate ->
+        filter.getToDateOptional().ifPresent(toDate ->
                 wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get(CREATED_DATE_FIELD), toDate)));
 
         wherePredicates.add(criteriaBuilder.between(root.get(RATING_FIELD),
-                feedbackFilter.getFromRating(), feedbackFilter.getToRating()));
+                filter.getFromRating(), filter.getToRating()));
 
         if (!stringForSearchPredicates.isEmpty()) {
             Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
@@ -69,5 +77,4 @@ public class AdvancedFeedbackRepository extends FilterSupportRepository<Feedback
 
         query.where(wherePredicatesArray);
     }
-
 }

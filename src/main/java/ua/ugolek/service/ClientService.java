@@ -5,9 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Client;
-import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.projection.ClientsRegistrationProjection;
-import ua.ugolek.repository.AdvancedClientRepository;
 import ua.ugolek.repository.ClientRepository;
 import ua.ugolek.util.DateUtils;
 
@@ -20,18 +18,13 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
-public class ClientService extends FilterSupportService<Client, SearchFilter> {
+public class ClientService extends CrudService<Client> {
 
     @Autowired
     private ClientRepository clientRepository;
 
     @Autowired
     private PasswordEncoder encoder;
-
-    @Autowired
-    public ClientService(AdvancedClientRepository filterSupportRepository) {
-        super(filterSupportRepository);
-    }
 
     @Override
     public Client create(Client client) {
