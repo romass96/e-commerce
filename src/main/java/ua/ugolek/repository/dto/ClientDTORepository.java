@@ -9,7 +9,7 @@ import ua.ugolek.payload.filters.SearchFilter;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,6 +21,9 @@ import static ua.ugolek.dto.ClientDTO.*;
 public class ClientDTORepository extends FilterSupportDTORepository<Client, SearchFilter, ClientDTO> {
     private static final String[] fieldNamesForSearch = new String[] {
             "firstName", "lastName", "email", "phoneNumber"
+    };
+    private static final String[] fieldNamesForSelect = new String[] {
+            PHONE_NUMBER_FIELD, FIRST_NAME_FIELD, LAST_NAME_FIELD, EMAIL_FIELD
     };
     private static final String CLIENT_FIELD = "client";
 
@@ -53,17 +56,28 @@ public class ClientDTORepository extends FilterSupportDTORepository<Client, Sear
         Join<Order, Client> clientJoin = orderRoot.join(CLIENT_FIELD);
 
         populateQuery(filter, query, clientJoin);
-        applySorting(filter, query, clientJoin);
 
+        applySorting(filter, query, clientJoin);
+        applyGroupByOperation(query, clientJoin);
+        applyMultiselectOperation(query, clientJoin, orderRoot);
+
+        return query;
+    }
+
+    private void applyMultiselectOperation(CriteriaQuery<Tuple> query, Join<Order, Client> clientJoin, Root<Order> orderRoot) {
+        List<Selection<?>> selections = Arrays.stream(fieldNamesForSelect)
+                .map(fieldName -> clientJoin.get(fieldName).alias(fieldName))
+                .collect(Collectors.toList());
         Selection<Long> ordersCountSelection = createOrdersCountSelection(orderRoot);
-        List<Selection<?>> selections = new ArrayList<>();
-        List<Expression<?>> groupByExpressions = new ArrayList<>();
-        Stream.of(PHONE_NUMBER_FIELD, FIRST_NAME_FIELD, LAST_NAME_FIELD, EMAIL_FIELD).forEach(fieldName -> {
-            selections.add(clientJoin.get(fieldName).alias(fieldName));
-            groupByExpressions.add(clientJoin.get(fieldName));
-        });
         selections.add(ordersCountSelection);
-        return query.multiselect(selections).groupBy(groupByExpressions);
+        query.multiselect(selections);
+    }
+
+    private void applyGroupByOperation(CriteriaQuery<Tuple> query, Join<Order, Client> clientJoin) {
+        List<Expression<?>> groupByExpressions = Arrays.stream(fieldNamesForSelect)
+                .map(clientJoin::get)
+                .collect(Collectors.toList());
+        query.groupBy(groupByExpressions);
     }
 
     private Selection<Long> createOrdersCountSelection(Root<Order> orderRoot) {
