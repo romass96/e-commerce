@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Client;
+import ua.ugolek.model.ClientCreationMode;
 import ua.ugolek.projection.ClientsRegistrationProjection;
 import ua.ugolek.repository.ClientRepository;
 import ua.ugolek.util.DateUtils;
@@ -31,6 +32,16 @@ public class ClientService extends CrudService<Client> {
         String encodedPassword = encoder.encode(client.getPassword());
         client.setPassword(encodedPassword);
         return clientRepository.save(client);
+    }
+
+    public Client registerClient(Client client) {
+        client.setClientCreationMode(ClientCreationMode.THROUGH_REGISTRATION);
+        return create(client);
+    }
+
+    public Client createClientFromOrderDetails(Client client) {
+        client.setClientCreationMode(ClientCreationMode.THROUGH_ORDER);
+        return create(client);
     }
 
     public Map<LocalDate, Long> countClientsByRegistrationDate(String periodCode) {

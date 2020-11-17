@@ -44,6 +44,9 @@ public class Client {
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
 
+    @Enumerated(EnumType.STRING)
+    private ClientCreationMode clientCreationMode;
+
     @JsonIgnore
     public String getFullName() {
         return firstName + " " + lastName;
