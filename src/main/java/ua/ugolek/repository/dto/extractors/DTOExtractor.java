@@ -51,10 +51,15 @@ public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
 
     protected void applySorting(CriteriaQuery<?> query, From<?, T> root) {
         filter.getSortByOptional().ifPresent(sortBy -> {
-            Function<Path<T>, Order> sortFunction = filter.isSortDesc() ?
+            Function<Expression<?>, Order> sortFunction = filter.isSortDesc() ?
                     criteriaBuilder::desc : criteriaBuilder::asc;
-            query.orderBy(sortFunction.apply(root.get(sortBy)));
+            Expression<?> expressionForSorting = getExpressionForSorting(sortBy, root);
+            query.orderBy(sortFunction.apply(expressionForSorting));
         });
+    }
+
+    protected Expression<?> getExpressionForSorting(String sortBy, From<?, T> root) {
+        return root.get(sortBy);
     }
 
     protected void setPaginationParameters(TypedQuery<?> query) {

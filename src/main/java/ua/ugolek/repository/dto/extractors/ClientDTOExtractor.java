@@ -30,6 +30,7 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
     private Join<Order, Client> clientJoin;
     private Root<Order> orderRoot;
     private CriteriaQuery<Tuple> tupleQuery;
+    private Expression<Long> orderCountExpression;
 
     public ClientDTOExtractor(SearchFilter filter, EntityManager entityManager) {
         super(filter, entityManager, null);
@@ -56,15 +57,20 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
                 .collect(Collectors.toList());
     }
 
+    @Override
+    protected Expression<?> getExpressionForSorting(String sortBy, From<?, Client> root) {
+        return sortBy.equals(ORDERS_COUNT_ALIAS) ? orderCountExpression : root.get(sortBy);
+    }
+
     private CriteriaQuery<Tuple> createSelectTupleQuery() {
         this.tupleQuery = criteriaBuilder.createTupleQuery();
 
         initRoots();
         populateQuery(tupleQuery, clientJoin);
 
-        applySorting(tupleQuery, clientJoin);
         applyGroupByOperation();
         applyMultiselectOperation();
+        applySorting(tupleQuery, clientJoin);
 
         return tupleQuery;
     }
@@ -78,7 +84,7 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
         List<Selection<?>> selections = Arrays.stream(fieldNamesForSelect)
                 .map(fieldName -> clientJoin.get(fieldName).alias(fieldName))
                 .collect(Collectors.toList());
-        Selection<Long> ordersCountSelection = createOrdersCountSelection(orderRoot);
+        Selection<Long> ordersCountSelection = createOrdersCountSelection();
         selections.add(ordersCountSelection);
         tupleQuery.multiselect(selections);
     }
@@ -90,8 +96,9 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
         tupleQuery.groupBy(groupByExpressions);
     }
 
-    private Selection<Long> createOrdersCountSelection(Root<Order> orderRoot) {
-        return criteriaBuilder.count(orderRoot).alias(ORDERS_COUNT_ALIAS);
+    private Selection<Long> createOrdersCountSelection() {
+        this.orderCountExpression = criteriaBuilder.count(orderRoot);
+        return orderCountExpression.alias(ORDERS_COUNT_ALIAS);
     }
 
     private static class TupleToClientDTOMapper implements Function<Tuple, ClientDTO> {
