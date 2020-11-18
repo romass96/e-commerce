@@ -28,7 +28,10 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
     };
     private static final String CLIENT_FIELD = "client";
 
-    private Function<Tuple, ClientDTO> tupleToClientDTOMapper = new TupleToClientDTOMapper();
+    private final Function<Tuple, ClientDTO> tupleToClientDTOMapper = new TupleToClientDTOMapper();
+    private Join<Order, Client> clientJoin;
+    private Root<Order> orderRoot;
+    private CriteriaQuery<Tuple> tupleQuery;
 
     public ClientDTOExtractor(SearchFilter filter, EntityManager entityManager)
     {
@@ -58,33 +61,37 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
     }
 
     private CriteriaQuery<Tuple> createSelectTupleQuery() {
-        CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
-        Root<Order> orderRoot = query.from(Order.class);
-        Join<Order, Client> clientJoin = orderRoot.join(CLIENT_FIELD);
+        this.tupleQuery = criteriaBuilder.createTupleQuery();
 
-        populateQuery(query, clientJoin);
+        initRoots();
+        populateQuery(tupleQuery, clientJoin);
 
-        applySorting(query, clientJoin);
-        applyGroupByOperation(query, clientJoin);
-        applyMultiselectOperation(query, clientJoin, orderRoot);
+        applySorting(tupleQuery, clientJoin);
+        applyGroupByOperation();
+        applyMultiselectOperation();
 
-        return query;
+        return tupleQuery;
     }
 
-    private void applyMultiselectOperation(CriteriaQuery<Tuple> query, Join<Order, Client> clientJoin, Root<Order> orderRoot) {
+    private void initRoots() {
+        this.orderRoot = tupleQuery.from(Order.class);
+        this.clientJoin = orderRoot.join(CLIENT_FIELD);
+    }
+
+    private void applyMultiselectOperation() {
         List<Selection<?>> selections = Arrays.stream(fieldNamesForSelect)
             .map(fieldName -> clientJoin.get(fieldName).alias(fieldName))
             .collect(Collectors.toList());
         Selection<Long> ordersCountSelection = createOrdersCountSelection(orderRoot);
         selections.add(ordersCountSelection);
-        query.multiselect(selections);
+        tupleQuery.multiselect(selections);
     }
 
-    private void applyGroupByOperation(CriteriaQuery<Tuple> query, Join<Order, Client> clientJoin) {
+    private void applyGroupByOperation() {
         List<Expression<?>> groupByExpressions = Arrays.stream(fieldNamesForSelect)
             .map(clientJoin::get)
             .collect(Collectors.toList());
-        query.groupBy(groupByExpressions);
+        tupleQuery.groupBy(groupByExpressions);
     }
 
     private Selection<Long> createOrdersCountSelection(Root<Order> orderRoot) {
