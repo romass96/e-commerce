@@ -17,8 +17,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter, FeedbackDTO>
-{
+public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter, FeedbackDTO> {
     private static final String ADVANTAGES_FIELD = "advantages";
     private static final String DISADVANTAGES_FIELD = "disadvantages";
     private static final String TEXT_FIELD = "text";
@@ -30,14 +29,12 @@ public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter,
     private static final String RATING_FIELD = "rating";
 
     public FeedbackDTOExtractor(FeedbackFilter filter, EntityManager entityManager,
-        Function<Feedback, FeedbackDTO> dtoMapper)
-    {
+                                Function<Feedback, FeedbackDTO> dtoMapper) {
         super(filter, entityManager, dtoMapper);
     }
 
     @Override
-    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Feedback> root)
-    {
+    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Feedback> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
         List<Predicate> stringForSearchPredicates = new ArrayList<>();
 
@@ -48,26 +45,26 @@ public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter,
             Join<Product, Category> category = product.join(CATEGORY_FIELD);
 
             categoryIdOptional.ifPresent(categoryId ->
-                wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId)));
+                    wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId)));
             stringForSearchOptional.ifPresent(stringForSearch ->
-                stringForSearchPredicates.add(createLikePredicate(product, NAME_FIELD, stringForSearch)));
+                    stringForSearchPredicates.add(createLikePredicate(product, NAME_FIELD, stringForSearch)));
         }
 
         stringForSearchOptional.ifPresent(stringForSearch ->
-            Stream.of(TEXT_FIELD, ADVANTAGES_FIELD, DISADVANTAGES_FIELD)
-                .map(field -> createLikePredicate(root, field, stringForSearch))
-                .forEach(stringForSearchPredicates::add));
+                Stream.of(TEXT_FIELD, ADVANTAGES_FIELD, DISADVANTAGES_FIELD)
+                        .map(field -> createLikePredicate(root, field, stringForSearch))
+                        .forEach(stringForSearchPredicates::add));
 
         filter.getFromDateOptional().ifPresent(fromDate ->
-            wherePredicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                root.get(CREATED_DATE_FIELD), fromDate)));
+                wherePredicates.add(criteriaBuilder.greaterThanOrEqualTo(
+                        root.get(CREATED_DATE_FIELD), fromDate)));
 
         filter.getToDateOptional().ifPresent(toDate ->
-            wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
-                root.get(CREATED_DATE_FIELD), toDate)));
+                wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
+                        root.get(CREATED_DATE_FIELD), toDate)));
 
         wherePredicates.add(criteriaBuilder.between(root.get(RATING_FIELD),
-            filter.getFromRating(), filter.getToRating()));
+                filter.getFromRating(), filter.getToRating()));
 
         if (!stringForSearchPredicates.isEmpty()) {
             Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));

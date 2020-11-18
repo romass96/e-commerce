@@ -6,18 +6,12 @@ import org.springframework.data.domain.Pageable;
 import ua.ugolek.dto.DTO;
 import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.repository.dto.extractors.DTOExtractor;
-import ua.ugolek.util.ReflectionUtil;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public abstract class FilterSupportDTORepository<T,F extends SearchFilter, U extends DTO>  {
+public abstract class FilterSupportDTORepository<T, F extends SearchFilter, U extends DTO> {
     @PersistenceContext
     protected EntityManager entityManager;
 

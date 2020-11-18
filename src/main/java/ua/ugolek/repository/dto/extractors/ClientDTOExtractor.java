@@ -16,15 +16,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ua.ugolek.dto.ClientDTO.*;
-import static ua.ugolek.dto.ClientDTO.EMAIL_FIELD;
 
-public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, ClientDTO>
-{
-    private static final String[] fieldNamesForSearch = new String[] {
-        "firstName", "lastName", "email", "phoneNumber"
+public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, ClientDTO> {
+    private static final String[] fieldNamesForSearch = new String[]{
+            "firstName", "lastName", "email", "phoneNumber"
     };
-    private static final String[] fieldNamesForSelect = new String[] {
-        PHONE_NUMBER_FIELD, FIRST_NAME_FIELD, LAST_NAME_FIELD, EMAIL_FIELD
+    private static final String[] fieldNamesForSelect = new String[]{
+            PHONE_NUMBER_FIELD, FIRST_NAME_FIELD, LAST_NAME_FIELD, EMAIL_FIELD
     };
     private static final String CLIENT_FIELD = "client";
 
@@ -33,18 +31,16 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
     private Root<Order> orderRoot;
     private CriteriaQuery<Tuple> tupleQuery;
 
-    public ClientDTOExtractor(SearchFilter filter, EntityManager entityManager)
-    {
+    public ClientDTOExtractor(SearchFilter filter, EntityManager entityManager) {
         super(filter, entityManager, null);
     }
 
     @Override
-    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Client> root)
-    {
+    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Client> root) {
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
             Predicate[] predicates = Stream.of(fieldNamesForSearch)
-                .map(field -> createLikePredicate(root, field, stringForSearch))
-                .toArray(Predicate[]::new);
+                    .map(field -> createLikePredicate(root, field, stringForSearch))
+                    .toArray(Predicate[]::new);
             query.where(criteriaBuilder.or(predicates));
         });
     }
@@ -56,8 +52,8 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
         setPaginationParameters(typedQuery);
 
         return typedQuery.getResultList().stream()
-            .map(tupleToClientDTOMapper)
-            .collect(Collectors.toList());
+                .map(tupleToClientDTOMapper)
+                .collect(Collectors.toList());
     }
 
     private CriteriaQuery<Tuple> createSelectTupleQuery() {
@@ -80,8 +76,8 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
 
     private void applyMultiselectOperation() {
         List<Selection<?>> selections = Arrays.stream(fieldNamesForSelect)
-            .map(fieldName -> clientJoin.get(fieldName).alias(fieldName))
-            .collect(Collectors.toList());
+                .map(fieldName -> clientJoin.get(fieldName).alias(fieldName))
+                .collect(Collectors.toList());
         Selection<Long> ordersCountSelection = createOrdersCountSelection(orderRoot);
         selections.add(ordersCountSelection);
         tupleQuery.multiselect(selections);
@@ -89,8 +85,8 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
 
     private void applyGroupByOperation() {
         List<Expression<?>> groupByExpressions = Arrays.stream(fieldNamesForSelect)
-            .map(clientJoin::get)
-            .collect(Collectors.toList());
+                .map(clientJoin::get)
+                .collect(Collectors.toList());
         tupleQuery.groupBy(groupByExpressions);
     }
 
@@ -98,17 +94,16 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
         return criteriaBuilder.count(orderRoot).alias(ORDERS_COUNT_ALIAS);
     }
 
-    private static class TupleToClientDTOMapper implements Function<Tuple, ClientDTO>
-    {
+    private static class TupleToClientDTOMapper implements Function<Tuple, ClientDTO> {
         @Override
         public ClientDTO apply(Tuple tuple) {
             return ClientDTO.builder()
-                .firstName(tuple.get(FIRST_NAME_FIELD, String.class))
-                .lastName(tuple.get(LAST_NAME_FIELD, String.class))
-                .phoneNumber(tuple.get(PHONE_NUMBER_FIELD, String.class))
-                .email(tuple.get(EMAIL_FIELD, String.class))
-                .ordersCount(tuple.get(ORDERS_COUNT_ALIAS, Long.class))
-                .build();
+                    .firstName(tuple.get(FIRST_NAME_FIELD, String.class))
+                    .lastName(tuple.get(LAST_NAME_FIELD, String.class))
+                    .phoneNumber(tuple.get(PHONE_NUMBER_FIELD, String.class))
+                    .email(tuple.get(EMAIL_FIELD, String.class))
+                    .ordersCount(tuple.get(ORDERS_COUNT_ALIAS, Long.class))
+                    .build();
         }
     }
 }

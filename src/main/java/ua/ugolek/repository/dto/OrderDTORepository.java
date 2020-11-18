@@ -14,8 +14,7 @@ public class OrderDTORepository extends FilterSupportDTORepository<Order, OrderF
     private OrderDTOMapper dtoMapper = new OrderDTOMapper();
 
     @Override
-    protected DTOExtractor<Order, OrderFilter, OrderDTO> createDtoExtractor(OrderFilter filter)
-    {
+    protected DTOExtractor<Order, OrderFilter, OrderDTO> createDtoExtractor(OrderFilter filter) {
         return new OrderDTOExtractor(filter, entityManager, dtoMapper);
     }
 }

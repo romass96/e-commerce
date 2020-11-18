@@ -14,8 +14,7 @@ public class ProductDTORepository extends FilterSupportDTORepository<Product, Se
     private ProductDTOMapper dtoMapper = new ProductDTOMapper();
 
     @Override
-    protected DTOExtractor<Product, SearchFilter, ProductDTO> createDtoExtractor(SearchFilter filter)
-    {
+    protected DTOExtractor<Product, SearchFilter, ProductDTO> createDtoExtractor(SearchFilter filter) {
         return new ProductDTOExtractor(filter, entityManager, dtoMapper);
     }
 }

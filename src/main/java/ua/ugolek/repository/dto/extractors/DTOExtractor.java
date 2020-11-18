@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class DTOExtractor<T,F extends SearchFilter, U extends DTO>
-{
+public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
     private final static int ENTITY_CLASS_INDEX = 0;
     protected final F filter;
     protected final EntityManager entityManager;
@@ -53,7 +52,7 @@ public abstract class DTOExtractor<T,F extends SearchFilter, U extends DTO>
     protected void applySorting(CriteriaQuery<?> query, From<?, T> root) {
         filter.getSortByOptional().ifPresent(sortBy -> {
             Function<Path<T>, Order> sortFunction = filter.isSortDesc() ?
-                criteriaBuilder::desc : criteriaBuilder::asc;
+                    criteriaBuilder::desc : criteriaBuilder::asc;
             query.orderBy(sortFunction.apply(root.get(sortBy)));
         });
     }

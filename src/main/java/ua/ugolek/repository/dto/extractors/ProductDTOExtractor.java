@@ -11,23 +11,20 @@ import javax.persistence.criteria.Predicate;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class ProductDTOExtractor extends DTOExtractor<Product, SearchFilter, ProductDTO>
-{
-    private static final String[] fieldNamesForSearch = new String[] {"name", "description"};
+public class ProductDTOExtractor extends DTOExtractor<Product, SearchFilter, ProductDTO> {
+    private static final String[] fieldNamesForSearch = new String[]{"name", "description"};
 
     public ProductDTOExtractor(SearchFilter filter, EntityManager entityManager,
-        Function<Product, ProductDTO> dtoMapper)
-    {
+                               Function<Product, ProductDTO> dtoMapper) {
         super(filter, entityManager, dtoMapper);
     }
 
     @Override
-    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Product> root)
-    {
+    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Product> root) {
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
             Predicate[] predicates = Stream.of(fieldNamesForSearch)
-                .map(field -> createLikePredicate(root, field, stringForSearch))
-                .toArray(Predicate[]::new);
+                    .map(field -> createLikePredicate(root, field, stringForSearch))
+                    .toArray(Predicate[]::new);
             query.where(criteriaBuilder.or(predicates));
         });
     }
