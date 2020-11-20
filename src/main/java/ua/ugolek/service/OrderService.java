@@ -3,6 +3,7 @@ package ua.ugolek.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import ua.ugolek.model.Client;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.projection.OrdersCountProjection;
@@ -25,8 +26,15 @@ public class OrderService extends CrudService<Order> {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ClientService clientService;
+
     @Override
     public Order create(Order order) {
+        String phoneNumber = order.getPhoneNumber();
+        Client client = clientService.findByPhoneNumber(phoneNumber).orElseGet(() ->
+                clientService.createClientFromOrderDetails(order.getClient()));
+        order.setClient(client);
         order.setStatus(OrderStatus.PENDING);
         return orderRepository.save(order);
     }

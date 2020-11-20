@@ -15,11 +15,13 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
 public class ClientService extends CrudService<Client> {
+    private static final String DEFAULT_PASSWORD = "password";
 
     @Autowired
     private ClientRepository clientRepository;
@@ -41,7 +43,16 @@ public class ClientService extends CrudService<Client> {
 
     public Client createClientFromOrderDetails(Client client) {
         client.setClientCreationMode(ClientCreationMode.THROUGH_ORDER);
+        client.setPassword(DEFAULT_PASSWORD);
         return create(client);
+    }
+
+    public Optional<Client> findByEmail(String email) {
+        return clientRepository.findByEmail(email);
+    }
+
+    public Optional<Client> findByPhoneNumber(String phoneNumber) {
+        return clientRepository.findByPhoneNumber(phoneNumber);
     }
 
     public Map<LocalDate, Long> countClientsByRegistrationDate(String periodCode) {

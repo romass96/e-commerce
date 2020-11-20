@@ -11,7 +11,7 @@ import ua.ugolek.repository.dto.extractors.OrderDTOExtractor;
 @Repository
 public class OrderDTORepository extends FilterSupportDTORepository<Order, OrderFilter, OrderDTO> {
 
-    private OrderDTOMapper dtoMapper = new OrderDTOMapper();
+    private final OrderDTOMapper dtoMapper = new OrderDTOMapper();
 
     @Override
     protected DTOExtractor<Order, OrderFilter, OrderDTO> createDtoExtractor(OrderFilter filter) {

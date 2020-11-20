@@ -9,6 +9,7 @@ import ua.ugolek.projection.ClientsRegistrationProjection;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
@@ -19,4 +20,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             "ORDER BY registrationDate",
             nativeQuery = true)
     List<ClientsRegistrationProjection> countClientsByRegistrationDate(@Param("startDate") LocalDateTime startDate);
+
+    Optional<Client> findByEmail(String email);
+    Optional<Client> findByPhoneNumber(String phoneNumber);
 }

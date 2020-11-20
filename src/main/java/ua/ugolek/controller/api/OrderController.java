@@ -31,6 +31,12 @@ public class OrderController {
         return orderService.getAll();
     }
 
+    @PostMapping("")
+    public HttpStatus createOrder(@RequestBody Order order) {
+        orderService.create(order);
+        return HttpStatus.CREATED;
+    }
+
     @PostMapping("/filter")
     public ListResponse<OrderDTO> getOrdersByFilter(@RequestBody OrderFilter filter) {
         return orderDTOService.queryByFilter(filter);
