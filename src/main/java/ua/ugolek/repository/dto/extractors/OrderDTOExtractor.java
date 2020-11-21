@@ -1,6 +1,7 @@
 package ua.ugolek.repository.dto.extractors;
 
 import ua.ugolek.dto.OrderDTO;
+import ua.ugolek.model.Client;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderItem;
 import ua.ugolek.model.Product;
@@ -27,6 +28,7 @@ public class OrderDTOExtractor extends DTOExtractor<Order, OrderFilter, OrderDTO
     private static final String PRODUCT_NAME_FIELD = "name";
     private static final String ORDER_ITEMS_FIELD = "orderItems";
     private static final String PRODUCT_FIELD = "product";
+    private static final String CLIENT_FIELD = "client";
 
     public OrderDTOExtractor(OrderFilter filter, EntityManager entityManager,
                              Function<Order, OrderDTO> dtoMapper) {
@@ -88,5 +90,10 @@ public class OrderDTOExtractor extends DTOExtractor<Order, OrderFilter, OrderDTO
 
         filter.getStatusOptional().ifPresent(status ->
                 wherePredicates.add(criteriaBuilder.equal(root.get(STATUS_FIELD), status)));
+
+        filter.getClientIdOptional().ifPresent(clientId -> {
+            Join<Order, Client> client = root.join(CLIENT_FIELD);
+            wherePredicates.add(criteriaBuilder.equal(client.get(ID_FIELD), clientId));
+        });
     }
 }

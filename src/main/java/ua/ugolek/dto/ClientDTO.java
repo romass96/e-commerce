@@ -11,7 +11,9 @@ public class ClientDTO implements DTO {
     public static final String LAST_NAME_FIELD = "lastName";
     public static final String EMAIL_FIELD = "email";
     public static final String PHONE_NUMBER_FIELD = "phoneNumber";
+    public static final String ID_FIELD = "id";
 
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;

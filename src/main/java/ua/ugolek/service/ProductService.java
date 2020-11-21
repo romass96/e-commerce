@@ -7,6 +7,7 @@ import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.model.Product;
 import ua.ugolek.model.PropertyDefinition;
+import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.projection.ProductSoldProjection;
 import ua.ugolek.repository.ProductRepository;
 import ua.ugolek.repository.PropertyDefinitionRepository;
@@ -45,5 +46,9 @@ public class ProductService extends CrudService<Product> {
     @Override
     protected JpaRepository<Product, Long> getRepository() {
         return productRepository;
+    }
+
+    public List<ClientProductsByCategories> countProductsForCategories(Long clientId) {
+        return productRepository.countProductsForCategories(clientId);
     }
 }

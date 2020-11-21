@@ -6,6 +6,7 @@ import ua.ugolek.dto.ProductDTO;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.ListResponse;
 import ua.ugolek.payload.filters.SearchFilter;
+import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.projection.ProductSoldProjection;
 import ua.ugolek.service.ProductService;
 import ua.ugolek.service.PropertyService;
@@ -54,6 +55,11 @@ public class ProductController {
     @PostMapping("/filter")
     public ListResponse<ProductDTO> getProductsByFilter(@RequestBody SearchFilter filter) {
         return productDTOService.queryByFilter(filter);
+    }
+
+    @GetMapping("/clientProductsForCategories")
+    public List<ClientProductsByCategories> getProductStatisticsForClient(@RequestParam Long clientId) {
+        return productService.countProductsForCategories(clientId);
     }
 
     @GetMapping("/productSoldStatistics")

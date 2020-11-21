@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ua.ugolek.model.Order;
-import ua.ugolek.model.OrderStatus;
+import ua.ugolek.projection.ClientOrdersByStatus;
 import ua.ugolek.projection.OrdersCountProjection;
 
 import java.time.LocalDateTime;
@@ -19,4 +19,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "ORDER BY createdDate",
             nativeQuery = true)
     List<OrdersCountProjection> countOrdersByCreatedDate(@Param("startDate") LocalDateTime startDate);
+
+    @Query(value = "SELECT o.status as orderStatus, COUNT(o) as orderCount FROM orders o " +
+        "WHERE o.client_id = :clientId " +
+        "GROUP BY orderStatus",
+        nativeQuery = true)
+    List<ClientOrdersByStatus> countOrdersByStatusForClient(@Param("clientId") Long clientId);
 }

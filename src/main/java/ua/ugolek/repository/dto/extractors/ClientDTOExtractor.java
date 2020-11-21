@@ -22,7 +22,7 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
             "firstName", "lastName", "email", "phoneNumber"
     };
     private static final String[] fieldNamesForSelect = new String[]{
-            PHONE_NUMBER_FIELD, FIRST_NAME_FIELD, LAST_NAME_FIELD, EMAIL_FIELD
+            PHONE_NUMBER_FIELD, FIRST_NAME_FIELD, LAST_NAME_FIELD, EMAIL_FIELD, ID_FIELD
     };
     private static final String CLIENT_FIELD = "client";
 
@@ -110,6 +110,7 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
                     .phoneNumber(tuple.get(PHONE_NUMBER_FIELD, String.class))
                     .email(tuple.get(EMAIL_FIELD, String.class))
                     .ordersCount(tuple.get(ORDERS_COUNT_ALIAS, Long.class))
+                    .id(tuple.get(ID_FIELD, Long.class))
                     .build();
         }
     }

@@ -1,5 +1,6 @@
 package ua.ugolek.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class Client {
     private String phoneNumber;
 
     @Column(name = "registration_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime registrationDate;
 
     @Enumerated(EnumType.STRING)

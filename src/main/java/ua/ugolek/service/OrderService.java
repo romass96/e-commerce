@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import ua.ugolek.model.Client;
 import ua.ugolek.model.Order;
 import ua.ugolek.model.OrderStatus;
+import ua.ugolek.projection.ClientOrdersByStatus;
+import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.projection.OrdersCountProjection;
 import ua.ugolek.repository.OrderRepository;
 import ua.ugolek.util.DateUtils;
@@ -61,6 +63,10 @@ public class OrderService extends CrudService<Order> {
         startDate.toLocalDate().datesUntil(endDate.toLocalDate()).forEach(date -> map.putIfAbsent(date, 0L));
 
         return map;
+    }
+
+    public List<ClientOrdersByStatus> countOrdersByStatusForClient(Long clientId) {
+        return orderRepository.countOrdersByStatusForClient(clientId);
     }
 
     @Override

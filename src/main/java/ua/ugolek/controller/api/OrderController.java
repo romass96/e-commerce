@@ -9,6 +9,8 @@ import ua.ugolek.dto.OrderDTO;
 import ua.ugolek.model.Order;
 import ua.ugolek.payload.ListResponse;
 import ua.ugolek.payload.filters.OrderFilter;
+import ua.ugolek.projection.ClientOrdersByStatus;
+import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.service.OrderService;
 import ua.ugolek.service.dto.OrderDTOService;
 
@@ -52,9 +54,14 @@ public class OrderController {
         return orderService.getById(id);
     }
 
-    @PostMapping(value = "/cancelOrder")
+    @PostMapping("/cancelOrder")
     @ResponseStatus(HttpStatus.OK)
     public void cancelOrder(@RequestBody JsonNode requestBody) {
         orderService.cancelOrder(requestBody.get("orderId").asLong());
+    }
+
+    @GetMapping("/clientOrdersForStatuses")
+    public List<ClientOrdersByStatus> countOrdersByStatusForClient(@RequestParam Long clientId) {
+        return orderService.countOrdersByStatusForClient(clientId);
     }
 }

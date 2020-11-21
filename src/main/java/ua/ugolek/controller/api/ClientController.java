@@ -40,4 +40,9 @@ public class ClientController {
         return clientDTOService.queryByFilter(filter);
     }
 
+    @GetMapping("/{id}")
+    public Client getClientById(@PathVariable Long id) {
+        return clientService.getById(id);
+    }
+
 }
