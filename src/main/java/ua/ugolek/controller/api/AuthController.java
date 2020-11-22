@@ -1,8 +1,6 @@
 package ua.ugolek.controller.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,10 +10,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import ua.ugolek.exception.UserNotFoundException;
+import ua.ugolek.model.PasswordResetToken;
 import ua.ugolek.model.Role;
 import ua.ugolek.model.User;
 import ua.ugolek.security.JwtUtils;
+import ua.ugolek.service.MailService;
 import ua.ugolek.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MailService mailService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -87,8 +92,24 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(user, jwt, roles));
     }
 
-    @Getter
-    @Setter
+    @PostMapping("/resetPassword")
+    public HttpStatus resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        String email = resetPasswordRequest.getEmail();
+        User user = userService.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        PasswordResetToken passwordResetToken = userService.createPasswordResetTokenForUser(user);
+        mailService.sendResetPasswordMessage(email, passwordResetToken.getToken());
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/changePassword")
+    public HttpStatus changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        String password = changePasswordRequest.getPassword();
+        String token = changePasswordRequest.getToken();
+        userService.changePasswordForUserByToken(password, token);
+        return HttpStatus.OK;
+    }
+
+    @Data
     private static class AuthRequest {
         private String email;
         private String password;
@@ -98,9 +119,18 @@ public class AuthController {
         }
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
+    @Data
+    private static class ResetPasswordRequest {
+        private String email;
+    }
+
+    @Data
+    private static class ChangePasswordRequest {
+        private String password;
+        private String token;
+    }
+
+    @Data
     private static class JwtResponse {
         private String token;
         private Long id;

@@ -9,20 +9,31 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.ugolek.Constants;
+import ua.ugolek.exception.ExpiredTokenException;
+import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.Role;
 import ua.ugolek.model.User;
 import ua.ugolek.model.UserSetting;
+import ua.ugolek.repository.PasswordResetTokenRepository;
 import ua.ugolek.repository.UserRepository;
+import ua.ugolek.model.PasswordResetToken;
 
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
+@Transactional
 public class UserService extends CrudService<User> implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -41,8 +52,31 @@ public class UserService extends CrudService<User> implements UserDetailsService
         return userRepository.save(user);
     }
 
+    public void updateUserPassword(User user, String newPassword) {
+        String encodedPassword = encoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+    }
+
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public PasswordResetToken createPasswordResetTokenForUser(User user) {
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken passwordResetToken = new PasswordResetToken(user, token);
+        return passwordResetTokenRepository.save(passwordResetToken);
+    }
+
+    public void changePasswordForUserByToken(String password, String token) {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token)
+            .orElseThrow(() -> new ObjectNotFoundException("Token " + token + " is not found"));
+        if (passwordResetToken.isExpired()) {
+            throw new ExpiredTokenException();
+        }
+        User user = passwordResetToken.getUser();
+        updateUserPassword(user, password);
+        passwordResetTokenRepository.delete(passwordResetToken);
     }
 
     public boolean existsByEmail(String email) {
