@@ -53,9 +53,9 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        if (!roles.contains(Role.ADMIN.name())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+//        if (!roles.contains(Role.ADMIN.name())) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateToken(authentication);
@@ -80,7 +80,7 @@ public class AuthController {
     }
 
     @GetMapping("/fetchUserInfo")
-    public ResponseEntity<?> fetchUserInfo(HttpServletRequest request) {
+    public ResponseEntity<?> fetchUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateToken(authentication);

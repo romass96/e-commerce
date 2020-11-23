@@ -1,6 +1,10 @@
 package ua.ugolek;
 
+import java.time.ZoneOffset;
+
 public class Constants {
+    public final static ZoneOffset ZONE_OFFSET = ZoneOffset.ofHours(2);
+
     public static final String ALL_FEEDBACKS = "all";
     public static final String POSITIVE_FEEDBACK_TYPE = "positive";
     public static final String NEGATIVE_FEEDBACK_TYPE = "negative";

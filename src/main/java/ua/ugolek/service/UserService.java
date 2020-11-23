@@ -40,13 +40,15 @@ public class UserService extends CrudService<User> implements UserDetailsService
 
     public User createAdmin(User user) {
         user.setRole(Role.ADMIN);
-        String encodedPassword = encoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        return userRepository.save(user);
+        return createUserWithEncodedPassword(user);
     }
 
     public User createManager(User user) {
         user.setRole(Role.MANAGER);
+        return createUserWithEncodedPassword(user);
+    }
+
+    private User createUserWithEncodedPassword(User user) {
         String encodedPassword = encoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         return userRepository.save(user);
@@ -56,6 +58,23 @@ public class UserService extends CrudService<User> implements UserDetailsService
         String encodedPassword = encoder.encode(newPassword);
         user.setPassword(encodedPassword);
         userRepository.save(user);
+    }
+
+    public void lockManager(Long userId) {
+        changeLockedManager(userId, true);
+    }
+
+    public void unlockManager(Long userId) {
+        changeLockedManager(userId, false);
+    }
+
+    private void changeLockedManager(Long userId, boolean locked) {
+        userRepository.findById(userId).ifPresent(user -> {
+            if (user.getRole() == Role.MANAGER) {
+                user.setLocked(locked);
+                userRepository.save(user);
+            }
+        });
     }
 
     public Optional<User> findByEmail(String email) {
