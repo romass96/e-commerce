@@ -11,8 +11,10 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -46,6 +48,9 @@ public class User implements UserDetails {
     private Role role;
 
     private boolean locked;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<UserSetting> settings = new ArrayList<>();
 
     public User(String email, String password) {
         this.email = email;
@@ -85,5 +90,10 @@ public class User implements UserDetails {
     @JsonIgnore
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    public void setSettings(List<UserSetting> settings) {
+        settings.forEach(setting -> setting.setUser(this));
+        this.settings = settings;
     }
 }

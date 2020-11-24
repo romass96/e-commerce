@@ -1,20 +1,19 @@
 package ua.ugolek.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "user_settings")
-@Setter
-@Getter
 @NoArgsConstructor
-public class UserSetting<T> {
+@Data
+public class UserSetting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,16 +21,24 @@ public class UserSetting<T> {
     private String jsonValue;
     private String className;
 
-    public UserSetting(Class<T> valueClass) {
-        this.className = valueClass.getName();
-    }
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    @ToString.Exclude
+    private User user;
 
-    public T getValue() throws ClassNotFoundException, JsonProcessingException {
+    @JsonIgnore
+    public <T> T getValue() throws ClassNotFoundException, JsonProcessingException {
         Class<T> valueClass = (Class<T>) Class.forName(className);
         return new ObjectMapper().readValue(jsonValue, valueClass);
     }
 
-    public void setValue(T value) throws JsonProcessingException {
+    public void setClass(Class<?> valueClass) {
+        this.className = valueClass.getName();
+    }
+
+    public <T> void setValue(T value) throws JsonProcessingException {
         this.jsonValue = new ObjectMapper().writeValueAsString(value);
     }
+
 }

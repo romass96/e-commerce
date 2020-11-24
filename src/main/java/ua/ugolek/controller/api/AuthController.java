@@ -16,6 +16,7 @@ import ua.ugolek.exception.UserNotFoundException;
 import ua.ugolek.model.PasswordResetToken;
 import ua.ugolek.model.Role;
 import ua.ugolek.model.User;
+import ua.ugolek.model.UserSetting;
 import ua.ugolek.security.JwtUtils;
 import ua.ugolek.service.MailService;
 import ua.ugolek.service.UserService;
@@ -52,10 +53,6 @@ public class AuthController {
         List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-
-//        if (!roles.contains(Role.ADMIN.name())) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateToken(authentication);
@@ -138,6 +135,7 @@ public class AuthController {
         private String firstName;
         private String lastName;
         private List<String> roles;
+        private List<UserSetting> settings;
 
         public JwtResponse(User user, String token, List<String> roles) {
             this.token = token;
@@ -146,6 +144,7 @@ public class AuthController {
             this.firstName = user.getFirstName();
             this.lastName = user.getLastName();
             this.id = user.getId();
+            this.settings = user.getSettings();
         }
     }
 
