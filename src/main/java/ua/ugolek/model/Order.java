@@ -1,9 +1,12 @@
 package ua.ugolek.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +15,15 @@ import java.util.List;
 @Table(name = "orders")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Order extends Auditable<User> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Enumerated(value = EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus status = OrderStatus.PENDING;
 
     @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Size(min = 1, message = "Order should contain at least one order item")
+    @Valid
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @ManyToOne

@@ -11,4 +11,5 @@ public class ProductDTO implements DTO {
     private String categoryName;
     private double price;
     private int quantity;
+    private boolean archived;
 }

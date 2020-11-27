@@ -20,11 +20,7 @@ import java.util.List;
 @Table(name = "users")
 @Data
 @NoArgsConstructor
-public class User implements UserDetails {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseEntity implements UserDetails {
 
     @NotBlank
     @Size(max = 30)

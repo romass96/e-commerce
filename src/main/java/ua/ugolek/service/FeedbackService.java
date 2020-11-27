@@ -12,7 +12,8 @@ import java.util.Map;
 import static ua.ugolek.Constants.*;
 
 @Service
-public class FeedbackService extends CrudService<Feedback> {
+public class FeedbackService extends CRUDService<Feedback>
+{
     @Autowired
     private FeedbackRepository feedbackRepository;
 

@@ -14,6 +14,8 @@ import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.service.OrderService;
 import ua.ugolek.service.dto.OrderDTOService;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,8 @@ public class OrderController {
     }
 
     @PostMapping("")
-    public HttpStatus createOrder(@RequestBody Order order) {
+    public HttpStatus createOrder(@RequestBody Order order) throws ConstraintViolationException
+    {
         orderService.create(order);
         return HttpStatus.CREATED;
     }

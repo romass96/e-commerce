@@ -1,4 +1,4 @@
-FROM openjdk:11-apline
+FROM openjdk:11
 MAINTAINER Roman Babii <romababiy96@gmail.com>
 EXPOSE 8085
 ADD target/ugolek-0.1.jar /app/ugolek.jar

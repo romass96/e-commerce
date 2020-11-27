@@ -11,13 +11,9 @@ import java.time.LocalDateTime;
 @Table(name = "password_reset_tokens")
 @Data
 @NoArgsConstructor
-public class PasswordResetToken
+public class PasswordResetToken extends BaseEntity
 {
     private static final int EXPIRATION_HOURS = 24;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     private String token;
 

@@ -3,6 +3,7 @@ package ua.ugolek.payload.filters;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
 
 @Setter

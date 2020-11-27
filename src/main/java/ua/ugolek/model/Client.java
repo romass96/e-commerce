@@ -15,11 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "clients")
 @Getter
 @Setter
-public class Client {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Client extends BaseEntity {
 
     @NotBlank
     @Size(max = 30)
@@ -48,6 +44,9 @@ public class Client {
 
     @Enumerated(EnumType.STRING)
     private ClientCreationMode clientCreationMode;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime birthday;
 
     @JsonIgnore
     public String getFullName() {

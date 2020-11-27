@@ -1,10 +1,12 @@
 package ua.ugolek.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.ugolek.dto.ProductDTO;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.ListResponse;
+import ua.ugolek.payload.filters.ProductFilter;
 import ua.ugolek.payload.filters.SearchFilter;
 import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.projection.ProductSoldProjection;
@@ -32,14 +34,21 @@ public class ProductController {
         return productService.create(product);
     }
 
-    @PutMapping("/{id}")
-    public Product update(@RequestBody Product product, @PathVariable Long id) {
-        return productService.update(id, product);
+    @PutMapping("")
+    public Product update(@RequestBody Product product) {
+        return productService.update(product);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        productService.delete(id);
+    @PostMapping("/archive")
+    public HttpStatus archive(@RequestParam Long id) {
+        productService.archiveProduct(id);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/unarchive")
+    public HttpStatus unarchive(@RequestParam Long id) {
+        productService.unarchiveProduct(id);
+        return HttpStatus.OK;
     }
 
     @GetMapping("")
@@ -53,7 +62,7 @@ public class ProductController {
     }
 
     @PostMapping("/filter")
-    public ListResponse<ProductDTO> getProductsByFilter(@RequestBody SearchFilter filter) {
+    public ListResponse<ProductDTO> getProductsByFilter(@RequestBody ProductFilter filter) {
         return productDTOService.queryByFilter(filter);
     }
 

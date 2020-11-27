@@ -1,7 +1,6 @@
 package ua.ugolek.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static ua.ugolek.Constants.*;
-import static ua.ugolek.Constants.ITEMS_ON_PAGE_OPTIONS;
 
 @Slf4j
 public class DefaultSettingsConfiguration
@@ -33,7 +31,7 @@ public class DefaultSettingsConfiguration
         return settings;
     }
 
-    private <T> Optional<UserSetting> createSetting(Class<?> valueClass, String name, T value) {
+    private <T> Optional<UserSetting> createSetting(Class<T> valueClass, String name, T value) {
         try
         {
             UserSetting userSetting = new UserSetting();

@@ -18,10 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @EntityListeners({AuditingEntityListener.class})
-public class Feedback {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Feedback extends BaseEntity {
 
     @NotBlank
     private String text;

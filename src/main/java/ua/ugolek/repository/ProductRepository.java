@@ -1,6 +1,7 @@
 package ua.ugolek.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -34,4 +35,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "GROUP BY categoryName",
         nativeQuery = true)
     List<ClientProductsByCategories> countProductsForCategories(@Param("clientId") Long clientId);
+
+    @Modifying
+    @Query("UPDATE Product p SET p.quantity = :quantity WHERE p.id = :id")
+    void updateProductQuantity(@Param("id") Long userId, @Param("quantity") Long quantity);
 }

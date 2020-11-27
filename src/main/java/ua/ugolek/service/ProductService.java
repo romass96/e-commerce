@@ -3,7 +3,6 @@ package ua.ugolek.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.model.Product;
 import ua.ugolek.model.PropertyDefinition;
@@ -15,13 +14,17 @@ import ua.ugolek.repository.PropertyDefinitionRepository;
 import java.util.List;
 
 @Service
-public class ProductService extends CrudService<Product> {
+public class ProductService extends CRUDService<Product>
+{
 
     @Autowired
     private ProductRepository productRepository;
 
     @Autowired
     private PropertyDefinitionRepository definitionRepository;
+
+    @Autowired
+    private ArchiveService archiveService;
 
     @Override
     public Product create(Product product) {
@@ -32,11 +35,22 @@ public class ProductService extends CrudService<Product> {
         return productRepository.save(product);
     }
 
-    public Product update(Long id, Product product) {
-        if (productRepository.existsById(id)) {
-            return productRepository.save(product);
-        }
-        throw new ObjectNotFoundException(Product.class.getSimpleName(), id);
+    public void archiveProduct(Long productId) {
+        Product product = getById(productId);
+        archiveService.moveToArchive(product);
+    }
+
+    public void unarchiveProduct(Long productId) {
+        Product product = getById(productId);
+        archiveService.restoreFromArchive(product);
+    }
+
+    public void decreaseProductQuantity(Product product, Integer amount) {
+
+    }
+
+    public void increaseProductQuantity(Product product, Integer amount) {
+
     }
 
     public List<ProductSoldProjection> countSoldProducts() {

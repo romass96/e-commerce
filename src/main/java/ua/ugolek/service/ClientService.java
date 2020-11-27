@@ -4,23 +4,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ua.ugolek.model.Client;
 import ua.ugolek.model.ClientCreationMode;
 import ua.ugolek.projection.ClientsRegistrationProjection;
 import ua.ugolek.repository.ClientRepository;
 import ua.ugolek.util.DateUtils;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @Service
-public class ClientService extends CrudService<Client> {
+@Validated
+public class ClientService extends CRUDService<Client>
+{
     private static final String DEFAULT_PASSWORD = "password";
 
     @Autowired
@@ -30,7 +32,7 @@ public class ClientService extends CrudService<Client> {
     private PasswordEncoder encoder;
 
     @Override
-    public Client create(Client client) {
+    public Client create(@Valid Client client) {
         String encodedPassword = encoder.encode(client.getPassword());
         client.setPassword(encodedPassword);
         return clientRepository.save(client);
@@ -59,13 +61,15 @@ public class ClientService extends CrudService<Client> {
         Period period = DateUtils.getPeriodByCode(periodCode);
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minus(period);
-        List<ClientsRegistrationProjection> statistics = clientRepository.countClientsByRegistrationDate(startDate);
-        Map<LocalDate, Long> map = statistics.stream().collect(Collectors.toMap(
-                ClientsRegistrationProjection::getRegistrationDate,
-                ClientsRegistrationProjection::getClientsCount, (prev, next) -> next, TreeMap::new));
-        startDate.toLocalDate().datesUntil(endDate.toLocalDate()).forEach(date -> map.putIfAbsent(date, 0L));
+        List<ClientsRegistrationProjection> items = clientRepository.countClientsByRegistrationDate(startDate);
 
-        return map;
+        CountByDateStatistics<ClientsRegistrationProjection> statistics = new CountByDateStatistics<>();
+        statistics.setCountMapper(ClientsRegistrationProjection::getClientsCount);
+        statistics.setDateMapper(ClientsRegistrationProjection::getRegistrationDate);
+        statistics.setStartDate(startDate.toLocalDate());
+        statistics.setEndDate(endDate.toLocalDate());
+
+        return statistics.getEveryDayData(items);
     }
 
     @Override

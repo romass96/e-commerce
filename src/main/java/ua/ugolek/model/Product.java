@@ -1,11 +1,11 @@
 package ua.ugolek.model;
 
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,13 +15,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "products")
 @NoArgsConstructor
-@Getter
-@Setter
-public class Product extends Auditable<User> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Data
+public class Product extends Auditable<User> implements Archiveable {
 
     @NotBlank
     private String name;
@@ -34,6 +29,7 @@ public class Product extends Auditable<User> {
 
     private String pictureUrl;
 
+    @Min(0)
     private Integer quantity;
 
     @ManyToOne
@@ -42,6 +38,9 @@ public class Product extends Auditable<User> {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Property> properties = new ArrayList<>();
+
+    @Embedded
+    private ArchivingDetails archivingDetails = new ArchivingDetails();
 
     public List<PropertyDefinition> getPropertyDefinitions() {
         return properties.stream().map(Property::getDefinition).collect(Collectors.toList());

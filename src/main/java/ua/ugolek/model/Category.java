@@ -15,10 +15,7 @@ import java.util.List;
 @Table(name = "categories")
 @Setter
 @Getter
-public class Category {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Category extends BaseEntity {
 
     @NotBlank
     private String name;

@@ -3,27 +3,29 @@ package ua.ugolek.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ua.ugolek.model.Client;
 import ua.ugolek.model.Order;
+import ua.ugolek.model.OrderItem;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.projection.ClientOrdersByStatus;
-import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.projection.OrdersCountProjection;
 import ua.ugolek.repository.OrderRepository;
 import ua.ugolek.util.DateUtils;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class OrderService extends CrudService<Order> {
+@Validated
+public class OrderService extends CRUDService<Order>
+{
 
     @Autowired
     private OrderRepository orderRepository;
@@ -31,14 +33,22 @@ public class OrderService extends CrudService<Order> {
     @Autowired
     private ClientService clientService;
 
+    @Autowired
+    private ProductService productService;
+
     @Override
-    public Order create(Order order) {
+    public Order create(@Valid Order order) {
         String phoneNumber = order.getPhoneNumber();
         Client client = clientService.findByPhoneNumber(phoneNumber).orElseGet(() ->
                 clientService.createClientFromOrderDetails(order.getClient()));
         order.setClient(client);
         order.setStatus(OrderStatus.PENDING);
+        order.getOrderItems().forEach(this::allocateProductsForOrderItem);
         return orderRepository.save(order);
+    }
+
+    private void checkOrderItemsQuantityIsAvailableInStore(Order order) {
+
     }
 
     public Order createWithStatus(Order order, OrderStatus orderStatus) {
@@ -48,21 +58,35 @@ public class OrderService extends CrudService<Order> {
 
     public void cancelOrder(Long orderId) {
         Order order = getById(orderId);
+        order.getOrderItems().forEach(this::freeUpProductsFromCancelledOrderItem);
+
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
+
+
+    }
+
+    private void allocateProductsForOrderItem(OrderItem orderItem) {
+
+    }
+
+    private void freeUpProductsFromCancelledOrderItem(OrderItem orderItem) {
+
     }
 
     public Map<LocalDate, Long> countOrdersByCreatedDate(String periodCode) {
         Period period = DateUtils.getPeriodByCode(periodCode);
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minus(period);
-        List<OrdersCountProjection> statistics = orderRepository.countOrdersByCreatedDate(startDate);
-        Map<LocalDate, Long> map = statistics.stream().collect(Collectors.toMap(
-                OrdersCountProjection::getCreatedDate,
-                OrdersCountProjection::getOrdersCount, (prev, next) -> next, TreeMap::new));
-        startDate.toLocalDate().datesUntil(endDate.toLocalDate()).forEach(date -> map.putIfAbsent(date, 0L));
+        List<OrdersCountProjection> items = orderRepository.countOrdersByCreatedDate(startDate);
 
-        return map;
+        CountByDateStatistics<OrdersCountProjection> statistics = new CountByDateStatistics<>();
+        statistics.setCountMapper(OrdersCountProjection::getOrdersCount);
+        statistics.setDateMapper(OrdersCountProjection::getCreatedDate);
+        statistics.setStartDate(startDate.toLocalDate());
+        statistics.setEndDate(endDate.toLocalDate());
+
+        return statistics.getEveryDayData(items);
     }
 
     public List<ClientOrdersByStatus> countOrdersByStatusForClient(Long clientId) {

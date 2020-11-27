@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EntityListeners({AuditingEntityListener.class})
-public abstract class Auditable<U> {
+public abstract class Auditable<U> extends BaseEntity {
 
     @CreatedBy
     @ManyToOne

@@ -1,6 +1,5 @@
 package ua.ugolek.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import static ua.ugolek.Constants.*;
 import ua.ugolek.exception.ExpiredTokenException;
 import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.*;
@@ -16,14 +14,13 @@ import ua.ugolek.repository.PasswordResetTokenRepository;
 import ua.ugolek.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Transactional
-public class UserService extends CrudService<User> implements UserDetailsService {
+public class UserService extends CRUDService<User> implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;

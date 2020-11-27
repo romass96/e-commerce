@@ -1,26 +1,19 @@
 package ua.ugolek.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "order_items")
-public class OrderItem {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Data
+public class OrderItem extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -35,6 +28,7 @@ public class OrderItem {
     private Order order;
 
     @NotNull
+    @Min(1)
     private Integer quantity;
 
     @Transient

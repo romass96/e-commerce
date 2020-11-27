@@ -11,11 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Property {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Property extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "definition_id")

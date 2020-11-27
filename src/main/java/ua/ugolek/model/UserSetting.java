@@ -13,10 +13,8 @@ import javax.persistence.*;
 @Table(name = "user_settings")
 @NoArgsConstructor
 @Data
-public class UserSetting {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class UserSetting extends BaseEntity {
+
     private String name;
     private String jsonValue;
     private String className;

@@ -8,7 +8,8 @@ import ua.ugolek.model.Category;
 import ua.ugolek.repository.CategoryRepository;
 
 @Service
-public class CategoryService extends CrudService<Category> {
+public class CategoryService extends CRUDService<Category>
+{
 
     @Autowired
     private CategoryRepository categoryRepository;
