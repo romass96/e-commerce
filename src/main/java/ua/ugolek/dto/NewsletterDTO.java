@@ -8,16 +8,20 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class FeedbackDTO implements DTO {
+public class NewsletterDTO implements DTO
+{
     private Long id;
-    private String text;
-    private String clientFullName;
-    private Long clientId;
-    private String productName;
-    private Double rating;
-    private String advantages;
-    private String disadvantages;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime createdDate;
+
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+    private LocalDateTime dispatchDate;
+
+    private String createdBy;
+
+    private boolean dispatched;
+
+    private String subject;
+
 }

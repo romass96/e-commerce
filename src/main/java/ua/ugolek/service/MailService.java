@@ -17,6 +17,9 @@ public class MailService
     private String clientAdminUrl;
 
     @Autowired
+    private ClientService clientService;
+
+    @Autowired
     public MailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -34,5 +37,9 @@ public class MailService
         log.info("Sending reset password message to {}", to);
         String url = clientAdminUrl + "/changePassword?token=" + token;
         sendMessage(to, "Forgot password", "Ссылка для восстановления пароля: " + url);
+    }
+
+    public void sendMessageToAllClients(String subject, String content) {
+
     }
 }

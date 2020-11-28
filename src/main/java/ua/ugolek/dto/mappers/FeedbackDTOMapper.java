@@ -15,6 +15,7 @@ public class FeedbackDTOMapper implements Function<Feedback, FeedbackDTO> {
                 .disadvantages(feedback.getDisadvantages())
                 .rating(feedback.getRating())
                 .clientFullName(feedback.getClient().getFullName())
+                .clientId(feedback.getClient().getId())
                 .productName(feedback.getProduct().getName())
                 .createdDate(feedback.getCreatedDate())
                 .build();

@@ -1,6 +1,7 @@
 package ua.ugolek.util;
 
-import java.time.LocalDate;
+import lombok.experimental.UtilityClass;
+
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@UtilityClass
 public class DateUtils {
     private static final Map<String, Period> periodMap = new HashMap<>();
 
@@ -18,10 +20,6 @@ public class DateUtils {
         periodMap.put("3M", Period.ofMonths(3));
         periodMap.put("6M", Period.ofMonths(6));
         periodMap.put("1Y", Period.ofYears(1));
-    }
-
-    private DateUtils() {
-
     }
 
     public static Date getDate(int year, int month, int dayOfMonth) {
