@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Newsletter;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.repository.NewsletterRepository;
 
 import static ua.ugolek.Constants.ZONE_OFFSET;
@@ -21,6 +22,12 @@ public class NewsletterService extends CRUDService<Newsletter>
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    public NewsletterService(NewsletterRepository baseEntityRepository)
+    {
+        super(baseEntityRepository);
+    }
+
     //TODO Implement message sending
 //    @Override
 //    public Newsletter create(Newsletter newsletter) {
@@ -33,9 +40,4 @@ public class NewsletterService extends CRUDService<Newsletter>
 //        return savedNewsletter;
 //    }
 
-    @Override
-    protected JpaRepository<Newsletter, Long> getRepository()
-    {
-        return newsletterRepository;
-    }
 }

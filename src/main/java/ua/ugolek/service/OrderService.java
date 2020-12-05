@@ -10,6 +10,7 @@ import ua.ugolek.model.OrderItem;
 import ua.ugolek.model.OrderStatus;
 import ua.ugolek.projection.ClientOrdersByStatus;
 import ua.ugolek.projection.OrdersCountProjection;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.repository.OrderRepository;
 import ua.ugolek.util.DateUtils;
 
@@ -35,6 +36,12 @@ public class OrderService extends CRUDService<Order>
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    public OrderService(OrderRepository baseEntityRepository)
+    {
+        super(baseEntityRepository);
+    }
 
     @Override
     public Order create(@Valid Order order) {
@@ -91,11 +98,6 @@ public class OrderService extends CRUDService<Order>
 
     public List<ClientOrdersByStatus> countOrdersByStatusForClient(Long clientId) {
         return orderRepository.countOrdersByStatusForClient(clientId);
-    }
-
-    @Override
-    protected JpaRepository<Order, Long> getRepository() {
-        return orderRepository;
     }
 
 }

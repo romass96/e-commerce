@@ -8,6 +8,7 @@ import ua.ugolek.model.Product;
 import ua.ugolek.model.PropertyDefinition;
 import ua.ugolek.projection.ClientProductsByCategories;
 import ua.ugolek.projection.ProductSoldProjection;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.repository.ProductRepository;
 import ua.ugolek.repository.PropertyDefinitionRepository;
 
@@ -25,6 +26,12 @@ public class ProductService extends CRUDService<Product>
 
     @Autowired
     private ArchiveService archiveService;
+
+    @Autowired
+    public ProductService(ProductRepository baseEntityRepository)
+    {
+        super(baseEntityRepository);
+    }
 
     @Override
     public Product create(Product product) {
@@ -55,11 +62,6 @@ public class ProductService extends CRUDService<Product>
 
     public List<ProductSoldProjection> countSoldProducts() {
         return productRepository.countProductsByOrderStatus(OrderStatus.COMPLETED);
-    }
-
-    @Override
-    protected JpaRepository<Product, Long> getRepository() {
-        return productRepository;
     }
 
     public List<ClientProductsByCategories> countProductsForCategories(Long clientId) {

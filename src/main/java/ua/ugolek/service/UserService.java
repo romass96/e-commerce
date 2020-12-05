@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ua.ugolek.exception.ExpiredTokenException;
 import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.*;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.repository.PasswordResetTokenRepository;
 import ua.ugolek.repository.UserRepository;
 
@@ -32,6 +33,12 @@ public class UserService extends CRUDService<User> implements UserDetailsService
     private PasswordEncoder encoder;
 
     private final DefaultSettingsConfiguration defaultConfiguration = new DefaultSettingsConfiguration();
+
+    @Autowired
+    public UserService(UserRepository baseEntityRepository)
+    {
+        super(baseEntityRepository);
+    }
 
     public User createAdmin(User user) {
         user.setRole(Role.ADMIN);
@@ -108,8 +115,4 @@ public class UserService extends CRUDService<User> implements UserDetailsService
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
     }
 
-    @Override
-    protected JpaRepository<User, Long> getRepository() {
-        return userRepository;
-    }
 }

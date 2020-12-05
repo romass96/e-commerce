@@ -1,19 +1,25 @@
 package ua.ugolek.service;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import ua.ugolek.exception.ObjectNotFoundException;
 import ua.ugolek.model.BaseEntity;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.util.ReflectionUtil;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class CRUDService<T extends BaseEntity> {
     private final static int ENTITY_CLASS_INDEX = 0;
     private String objectType;
+
+    private BaseEntityRepository<T> baseEntityRepository;
+
+    public CRUDService(BaseEntityRepository<T> baseEntityRepository) {
+        this.baseEntityRepository = baseEntityRepository;
+    }
 
     @PostConstruct
     public void init() {
@@ -21,36 +27,40 @@ public abstract class CRUDService<T extends BaseEntity> {
     }
 
     public List<T> getAll() {
-        return getRepository().findAll();
+        return baseEntityRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public void processAllEntities(Consumer<T> consumer) {
+        baseEntityRepository.findAllAsStream().forEach(consumer);
     }
 
     public T create(@Valid T object) {
-        return getRepository().save(object);
+        return baseEntityRepository.save(object);
     }
 
     public T update(T object) {
         if (!existsById(object.getId())) {
             throw new ObjectNotFoundException(object.toString() + " is not persisted.");
         }
-        return getRepository().save(object);
+        return baseEntityRepository.save(object);
     }
 
     public void delete(Long id) {
-        getRepository().deleteById(id);
+        baseEntityRepository.deleteById(id);
     }
 
     public void delete(T object) {
-        getRepository().delete(object);
+        baseEntityRepository.delete(object);
     }
 
     public T getById(Long id) {
-        return getRepository().findById(id)
+        return baseEntityRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException(objectType, id));
     }
 
     public boolean existsById(Long id) {
-        return getRepository().existsById(id);
+        return baseEntityRepository.existsById(id);
     }
 
-    protected abstract JpaRepository<T, Long> getRepository();
 }

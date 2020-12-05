@@ -1,6 +1,5 @@
 package ua.ugolek.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ClientRepository extends JpaRepository<Client, Long> {
+public interface ClientRepository extends BaseEntityRepository<Client> {
 
     @Query(value = "SELECT DATE(c.registration_date) as registrationDate, COUNT(c) as clientsCount FROM clients c " +
             "WHERE c.registration_date >= :startDate " +

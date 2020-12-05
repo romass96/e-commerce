@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import ua.ugolek.model.Feedback;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.repository.FeedbackRepository;
 
 import java.util.HashMap;
@@ -17,6 +18,12 @@ public class FeedbackService extends CRUDService<Feedback>
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    @Autowired
+    public FeedbackService(FeedbackRepository baseEntityRepository)
+    {
+        super(baseEntityRepository);
+    }
+
     public Map<String, Long> getFeedbacksCount() {
         Map<String, Long> map = new HashMap<>();
         map.put(ALL_FEEDBACKS, feedbackRepository.count());
@@ -26,8 +33,4 @@ public class FeedbackService extends CRUDService<Feedback>
         return map;
     }
 
-    @Override
-    protected JpaRepository<Feedback, Long> getRepository() {
-        return feedbackRepository;
-    }
 }

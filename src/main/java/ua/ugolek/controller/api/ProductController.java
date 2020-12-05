@@ -1,7 +1,9 @@
 package ua.ugolek.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.web.header.Header;
 import org.springframework.web.bind.annotation.*;
 import ua.ugolek.dto.ProductDTO;
 import ua.ugolek.model.Product;
@@ -13,7 +15,10 @@ import ua.ugolek.projection.ProductSoldProjection;
 import ua.ugolek.service.ProductService;
 import ua.ugolek.service.PropertyService;
 import ua.ugolek.service.dto.ProductDTOService;
+import ua.ugolek.service.excel.ProductExcelService;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,6 +30,9 @@ public class ProductController {
 
     @Autowired
     private ProductDTOService productDTOService;
+
+    @Autowired
+    private ProductExcelService productExcelService;
 
     @Autowired
     private PropertyService propertyService;
@@ -74,5 +82,12 @@ public class ProductController {
     @GetMapping("/productSoldStatistics")
     public List<ProductSoldProjection> getSoldProductsStatistics() {
         return productService.countSoldProducts();
+    }
+
+    @GetMapping("/excel/export")
+    public void exportToExcel(HttpServletResponse response) throws IOException
+    {
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=products.xlsx");
+        productExcelService.exportEntities(response.getOutputStream());
     }
 }

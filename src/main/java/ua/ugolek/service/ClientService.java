@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import ua.ugolek.model.Client;
 import ua.ugolek.model.ClientCreationMode;
 import ua.ugolek.projection.ClientsRegistrationProjection;
+import ua.ugolek.repository.BaseEntityRepository;
 import ua.ugolek.repository.ClientRepository;
 import ua.ugolek.util.DateUtils;
 
@@ -25,11 +26,17 @@ public class ClientService extends CRUDService<Client>
 {
     private static final String DEFAULT_PASSWORD = "password";
 
-    @Autowired
     private ClientRepository clientRepository;
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    public ClientService(ClientRepository baseEntityRepository)
+    {
+        super(baseEntityRepository);
+        this.clientRepository = baseEntityRepository;
+    }
 
     @Override
     public Client create(@Valid Client client) {
@@ -70,10 +77,5 @@ public class ClientService extends CRUDService<Client>
         statistics.setEndDate(endDate.toLocalDate());
 
         return statistics.getEveryDayData(items);
-    }
-
-    @Override
-    protected JpaRepository<Client, Long> getRepository() {
-        return clientRepository;
     }
 }

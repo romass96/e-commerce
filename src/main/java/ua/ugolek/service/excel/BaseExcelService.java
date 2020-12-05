@@ -1,74 +1,85 @@
 package ua.ugolek.service.excel;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import ua.ugolek.model.BaseEntity;
+import ua.ugolek.service.CRUDService;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.io.OutputStream;
+import java.util.function.Consumer;
 
-public abstract class BaseExcelService<T> {
-    private static String[] columns = {"Name", "Email", "Date Of Birth", "Salary"};
+public abstract class BaseExcelService<T extends BaseEntity>
+{
+    private final CellMapper<T> cellMapper;
 
-    private void createHeader(Sheet sheet, Workbook workbook) {
-        Row header = sheet.createRow(0);
+    private CRUDService<T> crudService;
 
-        CellStyle headerStyle = workbook.createCellStyle();
-        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        XSSFFont font = ((XSSFWorkbook) workbook).createFont();
-        font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 16);
-        font.setBold(true);
-        headerStyle.setFont(font);
-
-        Cell headerCell = header.createCell(0);
-        headerCell.setCellValue("Name");
-        headerCell.setCellStyle(headerStyle);
-
-        headerCell = header.createCell(1);
-        headerCell.setCellValue("Age");
-        headerCell.setCellStyle(headerStyle);
+    public BaseExcelService(CellMapper<T> cellMapper, CRUDService<T> crudService) {
+        this.cellMapper = cellMapper;
+        this.crudService = crudService;
     }
 
-    private void resizeColumnsToFitContentSize(Sheet sheet) {
-        for (int i = 0; i < columns.length; i++ ) {
-            sheet.autoSizeColumn(i);
+    public void exportEntities(OutputStream stream) throws IOException
+    {
+        WorkbookCreator workbookCreator = new WorkbookCreator("Items");
+        crudService.processAllEntities(workbookCreator.itemWriter);
+        workbookCreator.writeIntoStream(stream);
+    }
+
+    private class WorkbookCreator
+    {
+        private final static int WORKBOOK_WINDOW_SIZE = 500;
+        private final SXSSFWorkbook workbook = new SXSSFWorkbook (WORKBOOK_WINDOW_SIZE);
+        private SXSSFSheet sheet;
+        private int currentRowIndex = 0;
+
+        private final Consumer<T> itemWriter = item -> {
+            Row row = sheet.createRow(currentRowIndex++);
+            cellMapper.createRowCells(row,  item);
+        };
+
+        public WorkbookCreator(String sheetName) throws IOException
+        {
+            this.sheet = workbook.createSheet(sheetName);
+            createHeader();
+            sheet.trackAllColumnsForAutoSizing();
+        }
+
+        private void createHeader()
+        {
+            Row header = sheet.createRow(currentRowIndex);
+
+            CellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            Font font = workbook.createFont();
+            font.setFontName("Arial");
+            font.setFontHeightInPoints((short)16);
+            font.setBold(true);
+            headerStyle.setFont(font);
+
+            cellMapper.createHeaderCells(header, headerStyle);
+            currentRowIndex++;
+        }
+
+        private void resizeColumnsToFitContentSize()
+        {
+            for ( int i = 0; i < cellMapper.getHeaders().length; i++ )
+            {
+                sheet.autoSizeColumn(i);
+            }
+        }
+
+        public void writeIntoStream(OutputStream stream) throws IOException
+        {
+            resizeColumnsToFitContentSize();
+            workbook.write(stream);
+            workbook.dispose();
         }
     }
 
-    public void createExcelSheet(List<T> items, String sheetName) throws IOException {
-        Workbook workbook = new XSSFWorkbook();
-
-        Sheet sheet = workbook.createSheet(sheetName);
-        sheet.setColumnWidth(0, 6000);
-        sheet.setColumnWidth(1, 4000);
-
-        createHeader(sheet, workbook);
-        writeItemsIntoSheet(items, sheet);
-
-        resizeColumnsToFitContentSize(sheet);
-
-        // Write the output to a file
-        FileOutputStream fileOut = new FileOutputStream("poi-generated-file.xlsx");
-        workbook.write(fileOut);
-        fileOut.close();
-
-        // Closing the workbook
-        workbook.close();
-    }
-
-    public void writeItemsIntoSheet(List<T> items, Sheet sheet) {
-        int rowNumber = 1;
-//        for (T item : items) {
-//            Row row = sheet.createRow(rowNumber++);
-//            row.createCell(0).setCellValue(product.getId());
-//            row.createCell(1).setCellValue(product.getName());
-//            row.createCell(2).setCellValue(product.getDescription());
-//            row.createCell(3).setCellValue(product.getPrice().doubleValue());
-//        }
-    }
 
 }
