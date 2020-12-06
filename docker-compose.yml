@@ -13,9 +13,17 @@ services:
     ports:
     - "5432:5432"
     volumes:
-    - /d/e-commerce-db-data:/var/lib/postgresql/data
+    - /d/e-commerce-data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=ugolek
+  jms-broker:
+    image: rmohr/activemq
+    ports:
+    - "61616:61616"
+    - "8161:8161"
+    environment:
+      - ACTIVEMQ_ADMIN_LOGIN=activemq
+      - ACTIVEMQ_ADMIN_PASSWORD=activemq
 

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import ua.ugolek.Constants;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ public abstract class Auditable<U> extends BaseEntity {
     protected U createdBy;
 
     @CreatedDate
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = Constants.DATE_TIME_FORMAT)
     @Column(name = "created_date")
     protected LocalDateTime createdDate;
 
@@ -35,6 +36,6 @@ public abstract class Auditable<U> extends BaseEntity {
 
     @Column(name = "last_modified_date")
     @LastModifiedDate
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = Constants.DATE_TIME_FORMAT)
     protected LocalDateTime lastModifiedDate;
 }

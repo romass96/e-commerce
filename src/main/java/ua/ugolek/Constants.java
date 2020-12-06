@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 
 public class Constants {
     public final static ZoneOffset ZONE_OFFSET = ZoneOffset.ofHours(2);
+    public final static String DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm";
 
     public static final String ALL_FEEDBACKS = "all";
     public static final String POSITIVE_FEEDBACK_TYPE = "positive";

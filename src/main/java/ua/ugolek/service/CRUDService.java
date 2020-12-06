@@ -35,6 +35,10 @@ public abstract class CRUDService<T extends BaseEntity> {
         baseEntityRepository.findAllAsStream().forEach(consumer);
     }
 
+    public long countAll() {
+        return baseEntityRepository.count();
+    }
+
     public T create(@Valid T object) {
         return baseEntityRepository.save(object);
     }

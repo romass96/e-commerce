@@ -3,6 +3,8 @@ package ua.ugolek.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
+import ua.ugolek.Constants;
+import ua.ugolek.model.NewsletterStatus;
 
 import java.time.LocalDateTime;
 
@@ -12,16 +14,16 @@ public class NewsletterDTO implements DTO
 {
     private Long id;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime createdDate;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime dispatchDate;
 
     private String createdBy;
 
-    private boolean dispatched;
-
     private String subject;
+
+    private NewsletterStatus status;
 
 }

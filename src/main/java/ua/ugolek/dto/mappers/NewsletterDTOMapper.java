@@ -15,7 +15,7 @@ public class NewsletterDTOMapper implements Function<Newsletter, NewsletterDTO>
             .createdDate(newsletter.getCreatedDate())
             .dispatchDate(newsletter.getDispatchDate())
             .createdBy(newsletter.getCreatedBy().getFullName())
-            .dispatched(newsletter.isDispatched())
+            .status(newsletter.getStatus())
             .build();
     }
 }

@@ -3,6 +3,7 @@ package ua.ugolek.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ua.ugolek.Constants;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,11 +16,12 @@ public class Newsletter extends Auditable<User>
 {
     private String htmlContent;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm")
+    @JsonFormat(pattern = Constants.DATE_TIME_FORMAT)
     @Column(name = "dispatch_date")
     private LocalDateTime dispatchDate;
 
-    private boolean dispatched;
-
     private String subject;
+
+    @Enumerated(EnumType.STRING)
+    private NewsletterStatus status = NewsletterStatus.PENDING;
 }
