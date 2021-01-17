@@ -12,6 +12,7 @@ public class ProductFilter extends SearchFilter
     private boolean archived;
     private Double fromPrice;
     private Double toPrice;
+    private Long categoryId;
 
     public Optional<Double> getFromPriceOptional() {
         return Optional.ofNullable(fromPrice);
@@ -19,5 +20,9 @@ public class ProductFilter extends SearchFilter
 
     public Optional<Double> getToPriceOptional() {
         return Optional.ofNullable(toPrice);
+    }
+
+    public Optional<Long> getCategoryIdOptional() {
+        return Optional.ofNullable(categoryId);
     }
 }

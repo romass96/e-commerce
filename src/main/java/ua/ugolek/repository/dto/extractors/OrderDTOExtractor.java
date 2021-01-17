@@ -1,10 +1,8 @@
 package ua.ugolek.repository.dto.extractors;
 
 import ua.ugolek.dto.OrderDTO;
-import ua.ugolek.model.Client;
+import ua.ugolek.model.*;
 import ua.ugolek.model.Order;
-import ua.ugolek.model.OrderItem;
-import ua.ugolek.model.Product;
 import ua.ugolek.payload.filters.OrderFilter;
 
 import javax.persistence.EntityManager;
@@ -21,11 +19,11 @@ public class OrderDTOExtractor extends DTOExtractor<Order, OrderFilter, OrderDTO
     private static final String STATUS_FIELD = "status";
     private static final String PAID_FIELD = "paid";
     private static final String CREATED_DATE_FIELD = "createdDate";
-    private static final String ID_FIELD = "id";
     private static final String PRODUCT_NAME_FIELD = "name";
     private static final String ORDER_ITEMS_FIELD = "orderItems";
     private static final String PRODUCT_FIELD = "product";
     private static final String CLIENT_FIELD = "client";
+    private static final String CATEGORY_FIELD = "category";
 
     public OrderDTOExtractor(OrderFilter filter, EntityManager entityManager,
                              Function<Order, OrderDTO> dtoMapper) {
@@ -41,9 +39,10 @@ public class OrderDTOExtractor extends DTOExtractor<Order, OrderFilter, OrderDTO
         if (stringForSearchOptional.isPresent() || categoryIdOptional.isPresent()) {
             Join<Order, OrderItem> orderItems = root.join(ORDER_ITEMS_FIELD);
             Join<OrderItem, Product> products = orderItems.join(PRODUCT_FIELD);
+            Join<Product, Category> category = products.join(CATEGORY_FIELD);
 
             categoryIdOptional.ifPresent(categoryId ->
-                    wherePredicates.add(criteriaBuilder.equal(products.get(ID_FIELD), categoryId)));
+                    wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId)));
 
             stringForSearchOptional.ifPresent(stringForSearch -> {
                 List<Expression<String>> stringForSearchExpressions = new ArrayList<>();

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
     private static final int ENTITY_CLASS_INDEX = 0;
+    protected static final String ID_FIELD = "id";
     protected final F filter;
     protected final EntityManager entityManager;
     protected final CriteriaBuilder criteriaBuilder;

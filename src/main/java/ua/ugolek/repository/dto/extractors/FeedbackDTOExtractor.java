@@ -19,7 +19,6 @@ public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter,
     private static final String TEXT_FIELD = "text";
     private static final String CREATED_DATE_FIELD = "createdDate";
     private static final String NAME_FIELD = "name";
-    private static final String ID_FIELD = "id";
     private static final String PRODUCT_FIELD = "product";
     private static final String CATEGORY_FIELD = "category";
     private static final String RATING_FIELD = "rating";

@@ -1,14 +1,12 @@
 package ua.ugolek.repository.dto.extractors;
 
 import ua.ugolek.dto.ProductDTO;
+import ua.ugolek.model.Category;
 import ua.ugolek.model.Product;
 import ua.ugolek.payload.filters.ProductFilter;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -21,6 +19,7 @@ public class ProductDTOExtractor extends DTOExtractor<Product, ProductFilter, Pr
     private static final String ARCHIVING_DETAILS_FIELD = "archivingDetails";
     private static final String ARCHIVED_FIELD = "archived";
     private static final String PRICE_FIELD = "price";
+    private static final String CATEGORY_FIELD = "category";
 
     public ProductDTOExtractor(ProductFilter filter, EntityManager entityManager,
                                Function<Product, ProductDTO> dtoMapper) {
@@ -37,6 +36,11 @@ public class ProductDTOExtractor extends DTOExtractor<Product, ProductFilter, Pr
                 .collect(Collectors.toList());
             Predicate predicate = getStringSearchPredicate(stringForSearch, expressions);
             wherePredicates.add(predicate);
+        });
+
+        filter.getCategoryIdOptional().ifPresent(categoryId -> {
+            Join<Product, Category> category = root.join(CATEGORY_FIELD);
+            wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId));
         });
 
         filter.getToPriceOptional().ifPresent(toPrice ->
