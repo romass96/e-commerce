@@ -7,11 +7,8 @@ import ua.ugolek.model.ProductQuestion;
 import ua.ugolek.payload.filters.SearchFilter;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
+import javax.persistence.criteria.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class ProductQuestionDTOExtractor extends DTOExtractor<ProductQuestion, SearchFilter, ProductQuestionDTO>
@@ -32,11 +29,11 @@ public class ProductQuestionDTOExtractor extends DTOExtractor<ProductQuestion, S
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
             Join<ProductQuestion, Product> product = root.join(PRODUCT_FIELD);
 
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(createLikePredicate(product, PRODUCT_NAME_FIELD, stringForSearch));
-            predicates.add(createLikePredicate(root, TEXT_FIELD, stringForSearch));
-
-            query.where(criteriaBuilder.or(predicates.toArray(Predicate[]::new)));
+            List<Expression<String>> expressions = Arrays.asList(
+                product.get(PRODUCT_NAME_FIELD),
+                root.get(TEXT_FIELD));
+            Predicate predicate = getStringSearchPredicate(stringForSearch, expressions);
+            query.where(predicate);
         });
     }
 }

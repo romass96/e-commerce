@@ -12,14 +12,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
-    private final static int ENTITY_CLASS_INDEX = 0;
+    private static final int ENTITY_CLASS_INDEX = 0;
     protected final F filter;
     protected final EntityManager entityManager;
     protected final CriteriaBuilder criteriaBuilder;
     private final Class<T> entityClass;
     private final Function<T, U> dtoMapper;
 
-    public DTOExtractor(F filter, EntityManager entityManager, Function<T, U> dtoMapper) {
+    protected DTOExtractor(F filter, EntityManager entityManager, Function<T, U> dtoMapper) {
         this.filter = filter;
         this.entityManager = entityManager;
         this.dtoMapper = dtoMapper;
@@ -72,8 +72,23 @@ public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
         return "%" + input + "%";
     }
 
-    protected Predicate createLikePredicate(Path<?> root, String fieldName, String likeString) {
-        return criteriaBuilder.like(root.get(fieldName), getLikePattern(likeString));
+    protected Predicate createLikePredicate(Expression<String> likeExpression, String likeString) {
+        return criteriaBuilder.like(likeExpression, getLikePattern(likeString));
+    }
+
+    protected Predicate createEqualPredicate(Expression<?> equalExpression, Object comparingObject) {
+        return criteriaBuilder.equal(equalExpression, comparingObject);
+    }
+
+    protected Predicate getStringSearchPredicate(String stringForSearch, List<Expression<String>> stringSearchExpressions) {
+        Predicate[] predicates = stringSearchExpressions.stream()
+            .map(expression -> createLikePredicate(expression, stringForSearch))
+            .toArray(Predicate[]::new);
+        return criteriaBuilder.or(predicates);
+    }
+
+    protected Expression<String> getFieldExpression(From<?, ?> root, String fieldName) {
+        return root.get(fieldName);
     }
 
     private CriteriaQuery<T> getSelectQuery() {

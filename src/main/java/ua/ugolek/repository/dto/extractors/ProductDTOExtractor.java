@@ -6,11 +6,13 @@ import ua.ugolek.payload.filters.ProductFilter;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ProductDTOExtractor extends DTOExtractor<Product, ProductFilter, ProductDTO> {
@@ -30,11 +32,11 @@ public class ProductDTOExtractor extends DTOExtractor<Product, ProductFilter, Pr
         List<Predicate> wherePredicates = new ArrayList<>();
 
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
-            Predicate[] predicates = Stream.of(fieldNamesForSearch)
-                    .map(field -> createLikePredicate(root, field, stringForSearch))
-                    .toArray(Predicate[]::new);
-            Predicate stringForSearchPredicate = criteriaBuilder.or(predicates);
-            wherePredicates.add(stringForSearchPredicate);
+            List<Expression<String>> expressions = Stream.of(fieldNamesForSearch)
+                .map(fieldName -> getFieldExpression(root, fieldName))
+                .collect(Collectors.toList());
+            Predicate predicate = getStringSearchPredicate(stringForSearch, expressions);
+            wherePredicates.add(predicate);
         });
 
         filter.getToPriceOptional().ifPresent(toPrice ->

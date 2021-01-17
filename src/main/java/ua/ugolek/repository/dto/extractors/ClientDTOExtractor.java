@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import static ua.ugolek.dto.ClientDTO.*;
 
-public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, ClientDTO> {
+public class ClientDTOExtractor extends DTOExtractorWithStringSearch<Client, SearchFilter, ClientDTO> {
     private static final String[] fieldNamesForSearch = new String[]{
             "firstName", "lastName", "email", "phoneNumber"
     };
@@ -37,13 +37,9 @@ public class ClientDTOExtractor extends DTOExtractor<Client, SearchFilter, Clien
     }
 
     @Override
-    protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Client> root) {
-        filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
-            Predicate[] predicates = Stream.of(fieldNamesForSearch)
-                    .map(field -> createLikePredicate(root, field, stringForSearch))
-                    .toArray(Predicate[]::new);
-            query.where(criteriaBuilder.or(predicates));
-        });
+    protected String[] getFieldNamesForSearch()
+    {
+        return fieldNamesForSearch;
     }
 
     @Override

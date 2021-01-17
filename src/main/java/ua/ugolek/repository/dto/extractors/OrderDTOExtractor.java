@@ -8,10 +8,7 @@ import ua.ugolek.model.Product;
 import ua.ugolek.payload.filters.OrderFilter;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +35,6 @@ public class OrderDTOExtractor extends DTOExtractor<Order, OrderFilter, OrderDTO
     @Override
     protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Order> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
-        List<Predicate> stringForSearchPredicates = new ArrayList<>();
 
         Optional<String> stringForSearchOptional = filter.getStringForSearchOptional();
         Optional<Long> categoryIdOptional = filter.getCategoryIdOptional();
@@ -49,20 +45,19 @@ public class OrderDTOExtractor extends DTOExtractor<Order, OrderFilter, OrderDTO
             categoryIdOptional.ifPresent(categoryId ->
                     wherePredicates.add(criteriaBuilder.equal(products.get(ID_FIELD), categoryId)));
 
-            stringForSearchOptional.ifPresent(stringForSearch ->
-                    stringForSearchPredicates.add(
-                            createLikePredicate(products, PRODUCT_NAME_FIELD, stringForSearch)));
-        }
+            stringForSearchOptional.ifPresent(stringForSearch -> {
+                List<Expression<String>> stringForSearchExpressions = new ArrayList<>();
 
-        stringForSearchOptional.ifPresent(stringForSearch ->
-                stringForSearchPredicates.add(createLikePredicate(root, COMMENT_FIELD, stringForSearch)));
+                stringForSearchExpressions.add(products.get(PRODUCT_NAME_FIELD));
+                stringForSearchExpressions.add(root.get(COMMENT_FIELD));
+
+                Predicate stringForSearchPredicate = getStringSearchPredicate(stringForSearch,
+                    stringForSearchExpressions);
+                wherePredicates.add(stringForSearchPredicate);
+            });
+        }
 
         addOrderPredicates(wherePredicates, root);
-
-        if (!stringForSearchPredicates.isEmpty()) {
-            Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
-            wherePredicates.add(stringForSearchPredicate);
-        }
 
         Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
         query.where(wherePredicatesArray);

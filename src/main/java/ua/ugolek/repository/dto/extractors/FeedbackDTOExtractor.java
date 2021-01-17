@@ -7,15 +7,11 @@ import ua.ugolek.model.Product;
 import ua.ugolek.payload.filters.FeedbackFilter;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter, FeedbackDTO> {
     private static final String ADVANTAGES_FIELD = "advantages";
@@ -36,7 +32,6 @@ public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter,
     @Override
     protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Feedback> root) {
         List<Predicate> wherePredicates = new ArrayList<>();
-        List<Predicate> stringForSearchPredicates = new ArrayList<>();
 
         Optional<String> stringForSearchOptional = filter.getStringForSearchOptional();
         Optional<Long> categoryIdOptional = filter.getCategoryIdOptional();
@@ -45,15 +40,20 @@ public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter,
             Join<Product, Category> category = product.join(CATEGORY_FIELD);
 
             categoryIdOptional.ifPresent(categoryId ->
-                    wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId)));
-            stringForSearchOptional.ifPresent(stringForSearch ->
-                    stringForSearchPredicates.add(createLikePredicate(product, NAME_FIELD, stringForSearch)));
-        }
+                wherePredicates.add(createEqualPredicate(category.get(ID_FIELD), categoryId)));
 
-        stringForSearchOptional.ifPresent(stringForSearch ->
-                Stream.of(TEXT_FIELD, ADVANTAGES_FIELD, DISADVANTAGES_FIELD)
-                        .map(field -> createLikePredicate(root, field, stringForSearch))
-                        .forEach(stringForSearchPredicates::add));
+            stringForSearchOptional.ifPresent(stringForSearch -> {
+                List<Expression<String>> stringForSearchExpressions = new ArrayList<>();
+
+                stringForSearchExpressions.add(product.get(NAME_FIELD));
+                stringForSearchExpressions.add(root.get(TEXT_FIELD));
+                stringForSearchExpressions.add(root.get(ADVANTAGES_FIELD));
+                stringForSearchExpressions.add(root.get(DISADVANTAGES_FIELD));
+
+                Predicate stringForSearchPredicate = getStringSearchPredicate(stringForSearch, stringForSearchExpressions);
+                wherePredicates.add(stringForSearchPredicate);
+            });
+        }
 
         filter.getFromDateOptional().ifPresent(fromDate ->
                 wherePredicates.add(criteriaBuilder.greaterThanOrEqualTo(
@@ -65,11 +65,6 @@ public class FeedbackDTOExtractor extends DTOExtractor<Feedback, FeedbackFilter,
 
         wherePredicates.add(criteriaBuilder.between(root.get(RATING_FIELD),
                 filter.getFromRating(), filter.getToRating()));
-
-        if (!stringForSearchPredicates.isEmpty()) {
-            Predicate stringForSearchPredicate = criteriaBuilder.or(stringForSearchPredicates.toArray(new Predicate[0]));
-            wherePredicates.add(stringForSearchPredicate);
-        }
 
         Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
 
