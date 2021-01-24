@@ -17,7 +17,7 @@ public abstract class FilterSupportDTOService<T, F extends SearchFilter, U exten
 
     public ListResponse<U> queryByFilter(F filter) {
         Pageable pageable = PageRequest.of(filter.getPageNumber() - 1, filter.getPerPage());
-        Page<U> page = filterSupportRepository.filter(filter, pageable);
+        Page<U> page = filterSupportRepository.doFilter(filter, pageable);
         return generateResponse(page);
     }
 

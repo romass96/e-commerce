@@ -17,7 +17,7 @@ public abstract class FilterSupportDTORepository<T, F extends SearchFilter, U ex
 
     protected abstract DTOExtractor<T, F, U> createDtoExtractor(F filter);
 
-    public Page<U> filter(F filter, Pageable pageable) {
+    public Page<U> doFilter(F filter, Pageable pageable) {
         DTOExtractor<T, F, U> dtoExtractor = createDtoExtractor(filter);
         long count = dtoExtractor.queryDTOCount();
         List<U> dtoList = dtoExtractor.queryDTOList();
