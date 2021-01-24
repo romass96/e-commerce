@@ -25,11 +25,12 @@ public abstract class DTOExtractorWithStringSearch<T, F extends SearchFilter, U 
     protected <P> void populateQuery(CriteriaQuery<P> query, From<?, T> root)
     {
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
+            PredicateCreator predicateCreator = new PredicateCreator(criteriaBuilder);
             List<Expression<String>> expressions = Stream.of(getFieldNamesForSearch())
                 .map(fieldName -> getFieldExpression(root, fieldName))
                 .collect(Collectors.toList());
-            Predicate predicate = getStringSearchPredicate(stringForSearch, expressions);
-            query.where(predicate);
+            predicateCreator.addStringSearch(stringForSearch, expressions);
+            query.where(predicateCreator.getPredicatesAsArray());
         });
     }
 

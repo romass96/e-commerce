@@ -7,7 +7,6 @@ import ua.ugolek.payload.filters.ProductFilter;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,33 +27,29 @@ public class ProductDTOExtractor extends DTOExtractor<Product, ProductFilter, Pr
 
     @Override
     protected <P> void populateQuery(CriteriaQuery<P> query, From<?, Product> root) {
-        List<Predicate> wherePredicates = new ArrayList<>();
+        PredicateCreator predicateCreator = new PredicateCreator(criteriaBuilder);
 
         filter.getStringForSearchOptional().ifPresent(stringForSearch -> {
             List<Expression<String>> expressions = Stream.of(fieldNamesForSearch)
                 .map(fieldName -> getFieldExpression(root, fieldName))
                 .collect(Collectors.toList());
-            Predicate predicate = getStringSearchPredicate(stringForSearch, expressions);
-            wherePredicates.add(predicate);
+            predicateCreator.addStringSearch(stringForSearch, expressions);
         });
 
         filter.getCategoryIdOptional().ifPresent(categoryId -> {
             Join<Product, Category> category = root.join(CATEGORY_FIELD);
-            wherePredicates.add(criteriaBuilder.equal(category.get(ID_FIELD), categoryId));
+            predicateCreator.addEqualToPredicate(category.get(ID_FIELD), categoryId);
         });
 
         filter.getToPriceOptional().ifPresent(toPrice ->
-            wherePredicates.add(criteriaBuilder.lessThanOrEqualTo(
-                root.get(PRICE_FIELD), toPrice)));
+            predicateCreator.addLessThanOrEqualToPredicate(root.get(PRICE_FIELD), toPrice));
 
         filter.getFromPriceOptional().ifPresent(fromPrice ->
-            wherePredicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                root.get(PRICE_FIELD), fromPrice)));
+            predicateCreator.addGreaterThanOrEqualToPredicate(root.get(PRICE_FIELD), fromPrice));
 
-        wherePredicates.add(criteriaBuilder.equal(
-            root.get(ARCHIVING_DETAILS_FIELD).get(ARCHIVED_FIELD), filter.isArchived()));
+        predicateCreator.addEqualToPredicate(
+            root.get(ARCHIVING_DETAILS_FIELD).get(ARCHIVED_FIELD), filter.isArchived());
 
-        Predicate[] wherePredicatesArray = wherePredicates.toArray(new Predicate[0]);
-        query.where(wherePredicatesArray);
+        query.where(predicateCreator.getPredicatesAsArray());
     }
 }

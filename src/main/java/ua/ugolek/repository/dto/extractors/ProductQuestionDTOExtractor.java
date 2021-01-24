@@ -32,8 +32,9 @@ public class ProductQuestionDTOExtractor extends DTOExtractor<ProductQuestion, S
             List<Expression<String>> expressions = Arrays.asList(
                 product.get(PRODUCT_NAME_FIELD),
                 root.get(TEXT_FIELD));
-            Predicate predicate = getStringSearchPredicate(stringForSearch, expressions);
-            query.where(predicate);
+            PredicateCreator predicateCreator = new PredicateCreator(criteriaBuilder);
+            predicateCreator.addStringSearch(stringForSearch, expressions);
+            query.where(predicateCreator.getPredicatesAsArray());
         });
     }
 }

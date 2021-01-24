@@ -36,6 +36,14 @@ public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
         return typedQuery.getResultList().stream().map(dtoMapper).collect(Collectors.toList());
     }
 
+    private CriteriaQuery<T> getSelectQuery() {
+        CriteriaQuery<T> query = criteriaBuilder.createQuery(entityClass);
+        Root<T> root = query.from(entityClass);
+        populateQuery(query, root);
+        applySorting(query, root);
+        return query.select(root);
+    }
+
     public long queryDTOCount() {
         CriteriaQuery<Long> countQuery = getCountQuery();
         return entityManager.createQuery(countQuery).getSingleResult();
@@ -68,36 +76,8 @@ public abstract class DTOExtractor<T, F extends SearchFilter, U extends DTO> {
         query.setMaxResults(filter.getPerPage());
     }
 
-    //TODO Case-insensitive search
-    protected String getLikePattern(String input) {
-        return "%" + input + "%";
-    }
-
-    protected Predicate createLikePredicate(Expression<String> likeExpression, String likeString) {
-        return criteriaBuilder.like(likeExpression, getLikePattern(likeString));
-    }
-
-    protected Predicate createEqualPredicate(Expression<?> equalExpression, Object comparingObject) {
-        return criteriaBuilder.equal(equalExpression, comparingObject);
-    }
-
-    protected Predicate getStringSearchPredicate(String stringForSearch, List<Expression<String>> stringSearchExpressions) {
-        Predicate[] predicates = stringSearchExpressions.stream()
-            .map(expression -> createLikePredicate(expression, stringForSearch))
-            .toArray(Predicate[]::new);
-        return criteriaBuilder.or(predicates);
-    }
-
     protected Expression<String> getFieldExpression(From<?, ?> root, String fieldName) {
         return root.get(fieldName);
-    }
-
-    private CriteriaQuery<T> getSelectQuery() {
-        CriteriaQuery<T> query = criteriaBuilder.createQuery(entityClass);
-        Root<T> root = query.from(entityClass);
-        populateQuery(query, root);
-        applySorting(query, root);
-        return query.select(root);
     }
 
 }
