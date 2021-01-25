@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ua.ugolek.dto.ProductQuestionDTO;
 import ua.ugolek.payload.ListResponse;
-import ua.ugolek.payload.filters.SearchFilter;
+import ua.ugolek.payload.filters.ProductQuestionFilter;
 import ua.ugolek.service.dto.ProductQuestionDTOService;
 
 @RestController
@@ -18,7 +18,7 @@ public class ProductQuestionController
     private ProductQuestionDTOService productQuestionDTOService;
 
     @PostMapping("/filter")
-    public ListResponse<ProductQuestionDTO> getProductQuestionsByFilter(@RequestBody SearchFilter filter) {
+    public ListResponse<ProductQuestionDTO> getProductQuestionsByFilter(@RequestBody ProductQuestionFilter filter) {
         return productQuestionDTOService.queryByFilter(filter);
     }
 }

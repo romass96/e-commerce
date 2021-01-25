@@ -11,6 +11,7 @@ public class ProductQuestionDTOMapper implements Function<ProductQuestion, Produ
     {
         return ProductQuestionDTO.builder()
             .id(productQuestion.getId())
+            .text(productQuestion.getText())
             .clientFullName(productQuestion.getClient().getFullName())
             .productName(productQuestion.getProduct().getName())
             .clientId(productQuestion.getClient().getId())

@@ -19,4 +19,5 @@ public class ProductQuestionDTO implements DTO
     private Long clientId;
     private String clientFullName;
     private String productName;
+    private String text;
 }
